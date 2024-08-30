@@ -13,7 +13,6 @@ class CategorieResource extends JsonResource
             'id' => $this->id,
             'nom' => $this->nom,
             'description' => $this->description,
-
         ];
     }
 }

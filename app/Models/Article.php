@@ -19,6 +19,12 @@ class Article extends Model
         'promo_id'
     ];
 
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'deleted_at'
+    ];
+
     protected $dates = ['deleted_at'];
 
     public function categorie()

@@ -107,7 +107,7 @@ Route::prefix('v1/articles')->as('articles.')->group(function () {
     Route::post('/{id}/restore', [ArticleController::class, 'restore'])->name('restore');
     Route::delete('/{id}/force', [ArticleController::class, 'forceDelete'])->name('forceDelete');
     Route::post('/stock', [ArticleController::class, 'updateStock'])->name('updateStock');
-    Route::patch('/{id}', [ArticleController::class, 'updateOrUpdateStock'])->name('updateOrUpdateStock');
+    // Route::patch('/{id}', [ArticleController::class, 'updateOrUpdateStock'])->name('updateOrUpdateStock');
     Route::patch('/{id}', [ArticleController::class, 'updateStockSingle'])->name('updateStockSingle');
     Route::post('/libelle', [ArticleController::class, 'searchByLibelle'])->name('searchByLibelle');
 

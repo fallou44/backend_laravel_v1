@@ -168,6 +168,14 @@ class ArticleController extends Controller
 
         try {
             foreach ($validatedData['articles'] as $articleData) {
+
+                if ($articleData['quantite'] < 1) {
+                    $failedUpdates[] = [
+                        'id' => $articleData['id'],
+                        'reason' => 'La quantité doit être positive'
+                    ];
+                    continue;
+                }
                 $article = Article::find($articleData['id']);
 
                 if ($article) {

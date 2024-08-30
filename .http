@@ -1,0 +1,13 @@
+{
+    "surnom":"elage",
+    "telephone":"778133537",
+    "adresse":"Diamniadio",
+    "user":{
+        "prenom":"Elhadji",
+        "nom":"Gueye",
+        "login":"Makhtar",
+        "password": "fatou",
+        "password_confirmation":"fatou",
+        "email": "ciss@gmail.com"
+    }
+}

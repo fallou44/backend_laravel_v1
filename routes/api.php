@@ -61,6 +61,7 @@ Route::middleware(['auth:sanctum', /*'checkToken'*/])->group(function () {
     //     Route::post('/stock', [ArticleController::class, 'updateStock'])->name('updateStock');
     //     Route::patch('/{id}', [ArticleController::class, 'updateOrUpdateStock'])->name('updateOrUpdateStock');
     //     Route::patch('/{id}', [ArticleController::class, 'updateStockSingle'])->name('updateStockSingle');
+    // Route::post('/libelle', [ArticleController::class, 'searchByLibelle'])->name('searchByLibelle');
     // });
 
     // Routes pour les catégoriess
@@ -108,6 +109,8 @@ Route::prefix('v1/articles')->as('articles.')->group(function () {
     Route::post('/stock', [ArticleController::class, 'updateStock'])->name('updateStock');
     Route::patch('/{id}', [ArticleController::class, 'updateOrUpdateStock'])->name('updateOrUpdateStock');
     Route::patch('/{id}', [ArticleController::class, 'updateStockSingle'])->name('updateStockSingle');
+    Route::post('/libelle', [ArticleController::class, 'searchByLibelle'])->name('searchByLibelle');
+
 });
 
 // Fallback route pour les routes non définies

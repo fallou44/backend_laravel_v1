@@ -14,7 +14,7 @@ class StoreArticleRequest extends FormRequest
     public function rules()
     {
         return [
-            'libele' => 'required|string|max:255',
+            'libele' => 'required|string|max:255|unique:articles,libele',
             'prix_unitaire' => 'required|numeric|min:0',
             'quantite' => 'required|integer|min:0',
             'prix_details' => 'required|numeric|min:0',

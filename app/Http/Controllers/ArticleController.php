@@ -23,6 +23,13 @@ class ArticleController extends Controller
      *     path="/api/v1/articles",
      *     tags={"Articles"},
      *     summary="Get list of articles",
+     *     @OA\Parameter(
+     *         name="disponible",
+     *         in="query",
+     *         description="Filter articles by availability",
+     *         required=false,
+     *         @OA\Schema(type="string", enum={"oui", "non"})
+     *     ),
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
@@ -34,9 +41,19 @@ class ArticleController extends Controller
      *     )
      * )
      */
-    public function index()
+    public function index(Request $request)
     {
-        $articles = Article::paginate();
+        $query = Article::query();
+
+        if ($request->has('disponible')) {
+            if ($request->disponible === 'oui') {
+                $query->where('quantite', '>', 0);
+            } elseif ($request->disponible === 'non') {
+                $query->where('quantite', 0);
+            }
+        }
+
+        $articles = $query->paginate();
         return $this->sendResponse(StatusEnum::SUCCESS, $articles, 'Articles retrieved successfully');
     }
 
@@ -96,10 +113,18 @@ class ArticleController extends Controller
      *     )
      * )
      */
-    public function show(Article $article)
+    public function show($id)
     {
+        $article = Article::find($id);
+
+        if (!$article) {
+            return $this->sendResponse(StatusEnum::ERROR, null, 'Article not found');
+        }
+
         return $this->sendResponse(StatusEnum::SUCCESS, $article, 'Article retrieved successfully');
     }
+
+
 
     /**
      * @OA\Post(
@@ -111,7 +136,7 @@ class ArticleController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="articles", type="array", @OA\Items(
      *                 @OA\Property(property="id", type="integer"),
-     *                 @OA\Property(property="quantite", type="integer")
+     *                 @OA\Property(property="quantite", type="integer", minimum=0)
      *             ))
      *         )
      *     ),
@@ -119,17 +144,16 @@ class ArticleController extends Controller
      *         response=200,
      *         description="Successful operation",
      *         @OA\JsonContent(type="object",
-     *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
+     *             @OA\Property(property="status", type="integer", example=200),
      *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="successfulUpdates", type="array", @OA\Items(type="object")),
-     *                 @OA\Property(property="failedUpdates", type="array", @OA\Items(type="object"))
-     *             ),
-     *             @OA\Property(property="message", type="string")
+     *                 @OA\Property(property="success", type="array", @OA\Items(type="object")),
+     *                 @OA\Property(property="error", type="array", @OA\Items(type="object"))
+     *             )
      *         )
      *     ),
      *     @OA\Response(
-     *         response=500,
-     *         description="Server error"
+     *         response=422,
+     *         description="Validation error"
      *     )
      * )
      */
@@ -148,18 +172,12 @@ class ArticleController extends Controller
 
                 if ($article) {
                     $newQuantity = $article->quantite + $articleData['quantite'];
-                    if ($newQuantity >= 0) {
-                        $article->update(['quantite' => $newQuantity]);
-                        $successfulUpdates[] = [
-                            'id' => $article->id,
-                            'newQuantity' => $newQuantity
-                        ];
-                    } else {
-                        $failedUpdates[] = [
-                            'id' => $articleData['id'],
-                            'reason' => 'La quantité résultante serait négative'
-                        ];
-                    }
+                    $article->update(['quantite' => $newQuantity]);
+
+                    $successfulUpdates[] = [
+                        'id' => $article->id,
+                        'newQuantity' => $newQuantity
+                    ];
                 } else {
                     $failedUpdates[] = [
                         'id' => $articleData['id'],
@@ -170,16 +188,62 @@ class ArticleController extends Controller
 
             DB::commit();
 
-            return $this->sendResponse(StatusEnum::SUCCESS, [
+            return response()->json([
+                'message' => 'Mise à jour du stock effectuée',
                 'successfulUpdates' => $successfulUpdates,
                 'failedUpdates' => $failedUpdates
-            ], 'Mise à jour du stock effectuée');
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendResponse(StatusEnum::ERROR, null, 'Une erreur est survenue lors de la mise à jour du stock: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Une erreur est survenue lors de la mise à jour du stock',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/articles/libelle",
+     *     tags={"Articles"},
+     *     summary="Search articles by libelle (case-insensitive)",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="libelle", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
+     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Article")),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error"
+     *     )
+     * )
+     */
+    public function searchByLibelle(Request $request)
+    {
+        $request->validate([
+            'libelle' => 'required|string|min:3|max:255',
+        ]);
+
+        $libelle = strtolower($request->input('libelle'));
+
+        $articles = Article::whereRaw('LOWER(libele) LIKE ?', ["%{$libelle}%"])->get();
+
+        return $this->sendResponse(
+            StatusEnum::SUCCESS,
+            $articles,
+            'Articles retrieved successfully'
+        );
+    }
 
     /**
      * @OA\Patch(

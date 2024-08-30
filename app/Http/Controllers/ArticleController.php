@@ -6,7 +6,7 @@ use App\Models\Article;
 use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
 use App\Http\Requests\UpdateStockRequest;
-use Illuminate\Http\Response;
+use Illuminate\Http\Request;
 use App\Enums\StatusEnum;
 use Illuminate\Support\Facades\DB;
 
@@ -178,6 +178,67 @@ class ArticleController extends Controller
             DB::rollBack();
             return $this->sendResponse(StatusEnum::ERROR, null, 'Une erreur est survenue lors de la mise à jour du stock: ' . $e->getMessage());
         }
+    }
+
+
+    /**
+     * @OA\Patch(
+     *     path="/api/v1/articles/{id}",
+     *     tags={"Articles"},
+     *     summary="Update stock quantity of a single article",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="quantite", type="integer")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="string", enum={"SUCCESS"}),
+     *             @OA\Property(property="data", ref="#/components/schemas/Article"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Article not found",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="status", type="string", enum={"ERROR"}),
+     *             @OA\Property(property="data", type="null"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error"
+     *     )
+     * )
+     */
+    public function updateStockSingle(Request $request, $id)
+    {
+        $article = Article::findOrFail($id);
+
+        $request->validate([
+            'quantite' => 'required|integer|min:1',
+        ]);
+
+        $newQuantity = $article->quantite + $request->quantite;
+
+        if ($newQuantity < 0) {
+            return $this->sendResponse(StatusEnum::ERROR, null, 'La quantité résultante serait négative');
+        }
+
+        $article->update(['quantite' => $newQuantity]);
+
+        return $this->sendResponse(StatusEnum::SUCCESS, $article, 'Quantité de stock mise à jour avec succès');
     }
 
     /**

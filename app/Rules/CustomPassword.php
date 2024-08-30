@@ -2,30 +2,34 @@
 
 namespace App\Rules;
 
-use Illuminate\Contracts\Validation\Rule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
 
-
-class CustomPassword implements Rule
+class CustomPassword implements ValidationRule
 {
     /**
-     * Indique si la règle de validation est valide.
+     * Run the validation rule.
      *
      * @param  string  $attribute
      * @param  mixed  $value
-     * @return bool
+     * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
      */
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        return \Illuminate\Support\Facades\Hash::check($value, auth()->user()->password);
-    }
+        $messages = [
+            'required' => 'Le champ :attribute est obligatoire.',
+            'min' => 'Le mot de passe doit contenir au moins :min caractères.',
+            'password' => 'Le mot de passe doit contenir au moins un chiffre, une lettre, et un caractère spécial.',
+        ];
 
-    /**
-     * Obtenir le message de validation.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        return 'Le mot de passe est incorrect.';
+        $validator = Validator::make([$attribute => $value], [
+            $attribute => ['required', Password::min(8)->letters()->mixedCase()->numbers()->uncompromised()],
+        ], $messages);
+
+        if (!$validator->passes()) {
+            $fail($validator->errors()->first());
+        }
     }
 }

@@ -54,12 +54,13 @@ Route::middleware(['auth:sanctum', /*'checkToken'*/])->group(function () {
     //     Route::get('/', [ArticleController::class, 'index'])->name('index');
     //     Route::get('/{id}', [ArticleController::class, 'show'])->name('show');
     //     Route::post('/', [ArticleController::class, 'store'])->name('store');
-    //     Route::patch('/{article}', [ArticleController::class, 'update'])->name('update');
     //     Route::delete('/{article}', [ArticleController::class, 'destroy'])->name('destroy');
     //     Route::get('/trashed', [ArticleController::class, 'trashed'])->name('trashed');
     //     Route::post('/{id}/restore', [ArticleController::class, 'restore'])->name('restore');
     //     Route::delete('/{id}/force', [ArticleController::class, 'forceDelete'])->name('forceDelete');
     //     Route::post('/stock', [ArticleController::class, 'updateStock'])->name('updateStock');
+    //     Route::patch('/{id}', [ArticleController::class, 'updateOrUpdateStock'])->name('updateOrUpdateStock');
+    //     Route::patch('/{id}', [ArticleController::class, 'updateStockSingle'])->name('updateStockSingle');
     // });
 
     // Routes pour les catégoriess
@@ -100,12 +101,13 @@ Route::prefix('v1/articles')->as('articles.')->group(function () {
     Route::get('/', [ArticleController::class, 'index'])->name('index');
     Route::get('/{id}', [ArticleController::class, 'show'])->name('show');
     Route::post('/', [ArticleController::class, 'store'])->name('store');
-    Route::patch('/{article}', [ArticleController::class, 'update'])->name('update');
     Route::delete('/{article}', [ArticleController::class, 'destroy'])->name('destroy');
     Route::get('/trashed', [ArticleController::class, 'trashed'])->name('trashed');
     Route::post('/{id}/restore', [ArticleController::class, 'restore'])->name('restore');
     Route::delete('/{id}/force', [ArticleController::class, 'forceDelete'])->name('forceDelete');
     Route::post('/stock', [ArticleController::class, 'updateStock'])->name('updateStock');
+    Route::patch('/{id}', [ArticleController::class, 'updateOrUpdateStock'])->name('updateOrUpdateStock');
+    Route::patch('/{id}', [ArticleController::class, 'updateStockSingle'])->name('updateStockSingle');
 });
 
 // Fallback route pour les routes non définies

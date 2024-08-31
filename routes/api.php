@@ -50,28 +50,27 @@ Route::middleware(['auth:sanctum', /*'checkToken'*/])->group(function () {
     });
 
     // Routes pour les articles
-    // Route::prefix('v1/articles')->as('articles.')->group(function () {
-    //     Route::get('/', [ArticleController::class, 'index'])->name('index');
-    //     Route::get('/{id}', [ArticleController::class, 'show'])->name('show');
-    //     Route::post('/', [ArticleController::class, 'store'])->name('store');
-    //     Route::delete('/{article}', [ArticleController::class, 'destroy'])->name('destroy');
-    //     Route::get('/trashed', [ArticleController::class, 'trashed'])->name('trashed');
-    //     Route::post('/{id}/restore', [ArticleController::class, 'restore'])->name('restore');
-    //     Route::delete('/{id}/force', [ArticleController::class, 'forceDelete'])->name('forceDelete');
-    //     Route::post('/stock', [ArticleController::class, 'updateStock'])->name('updateStock');
-    //     Route::patch('/{id}', [ArticleController::class, 'updateOrUpdateStock'])->name('updateOrUpdateStock');
-    //     Route::patch('/{id}', [ArticleController::class, 'updateStockSingle'])->name('updateStockSingle');
+    // Route::get('/', [ArticleController::class, 'index'])->name('index');
+    // Route::get('/{id}', [ArticleController::class, 'show'])->name('show');
+    // Route::post('/', [ArticleController::class, 'store'])->name('store');
+    // Route::delete('/{article}', [ArticleController::class, 'destroy'])->name('destroy');
+    // Route::get('/trashed', [ArticleController::class, 'trashed'])->name('trashed');
+    // Route::post('/{id}/restore', [ArticleController::class, 'restore'])->name('restore');
+    // Route::delete('/{id}/force', [ArticleController::class, 'forceDelete'])->name('forceDelete');
+    // Route::post('/stock', [ArticleController::class, 'updateStock'])->name('updateStock');
+    // Route::patch('/{id}', [ArticleController::class, 'updateOrUpdateStock'])->name('updateOrUpdateStock');
+    // Route::patch('/{id}', [ArticleController::class, 'updateStockSingle'])->name('updateStockSingle');
     // Route::post('/libelle', [ArticleController::class, 'searchByLibelle'])->name('searchByLibelle');
     // });
 
     // Routes pour les catégoriess
-    // Route::prefix('v1/categories')->as('categories.')->group(function () {
-    //     Route::get('/', [CategorieController::class, 'index'])->name('index');
-    //     Route::get('/{id}', [CategorieController::class, 'show'])->name('show');
-    //     Route::post('/', [CategorieController::class, 'store'])->name('store');
-    //     Route::patch('/{categorie}', [CategorieController::class, 'update'])->name('update');
-    //     Route::delete('/{categorie}', [CategorieController::class, 'destroy'])->name('destroy');
-    // });
+    Route::prefix('v1/categories')->as('categories.')->group(function () {
+        Route::get('/', [CategorieController::class, 'index'])->name('index');
+        Route::get('/{id}', [CategorieController::class, 'show'])->name('show');
+        Route::post('/', [CategorieController::class, 'store'])->name('store');
+        Route::patch('/{categorie}', [CategorieController::class, 'update'])->name('update');
+        Route::delete('/{categorie}', [CategorieController::class, 'destroy'])->name('destroy');
+    });
 
     // Routes pour les promos
     Route::prefix('v1/promos')->as('promos.')->group(function () {
@@ -89,29 +88,32 @@ Route::middleware(['auth:sanctum', /*'checkToken'*/])->group(function () {
 });
 
 
-Route::prefix('v1/categories')->as('categories.')->group(function () {
-    Route::get('/', [CategorieController::class, 'index'])->name('index');
-    Route::get('/{id}', [CategorieController::class, 'show'])->name('show');
-    Route::post('/', [CategorieController::class, 'store'])->name('store');
-    Route::patch('/{categorie}', [CategorieController::class, 'update'])->name('update');
-    Route::delete('/{categorie}', [CategorieController::class, 'destroy'])->name('destroy');
+
+Route::prefix('v1/users')->as('users.')->group(function () {
+    Route::get('/', [UserController::class, 'index'])->name('index');
+    Route::get('/{id}', [UserController::class, 'show'])->name('show');
+    Route::post('/', [UserController::class, 'store'])->name('store');
+    Route::patch('/{user}', [UserController::class, 'update'])->name('update');
+    Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
 });
 
-// Routes pour les articles (middleware commenté pour permettre les tests)
-Route::prefix('v1/articles')->as('articles.')->group(function () {
-    Route::get('/', [ArticleController::class, 'index'])->name('index');
-    Route::get('/{id}', [ArticleController::class, 'show'])->name('show');
-    Route::post('/', [ArticleController::class, 'store'])->name('store');
-    Route::delete('/{article}', [ArticleController::class, 'destroy'])->name('destroy');
-    Route::get('/trashed', [ArticleController::class, 'trashed'])->name('trashed');
-    Route::post('/{id}/restore', [ArticleController::class, 'restore'])->name('restore');
-    Route::delete('/{id}/force', [ArticleController::class, 'forceDelete'])->name('forceDelete');
-    Route::post('/stock', [ArticleController::class, 'updateStock'])->name('updateStock');
-    // Route::patch('/{id}', [ArticleController::class, 'updateOrUpdateStock'])->name('updateOrUpdateStock');
-    Route::patch('/{id}', [ArticleController::class, 'updateStockSingle'])->name('updateStockSingle');
-    Route::post('/libelle', [ArticleController::class, 'searchByLibelle'])->name('searchByLibelle');
 
-});
+
+// // Routes pour les articles (middleware commenté pour permettre les tests)
+// Route::prefix('v1/articles')->as('articles.')->group(function () {
+//     Route::get('/', [ArticleController::class, 'index'])->name('index');
+//     Route::get('/{id}', [ArticleController::class, 'show'])->name('show');
+//     Route::post('/', [ArticleController::class, 'store'])->name('store');
+//     Route::delete('/{article}', [ArticleController::class, 'destroy'])->name('destroy');
+//     Route::get('/trashed', [ArticleController::class, 'trashed'])->name('trashed');
+//     Route::post('/{id}/restore', [ArticleController::class, 'restore'])->name('restore');
+//     Route::delete('/{id}/force', [ArticleController::class, 'forceDelete'])->name('forceDelete');
+//     Route::post('/stock', [ArticleController::class, 'updateStock'])->name('updateStock');
+//     // Route::patch('/{id}', [ArticleController::class, 'updateOrUpdateStock'])->name('updateOrUpdateStock');
+//     Route::patch('/{id}', [ArticleController::class, 'updateStockSingle'])->name('updateStockSingle');
+//     Route::post('/libelle', [ArticleController::class, 'searchByLibelle'])->name('searchByLibelle');
+
+// });
 
 // Fallback route pour les routes non définies
 Route::fallback(function () {

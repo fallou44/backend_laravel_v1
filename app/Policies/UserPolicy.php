@@ -36,7 +36,7 @@ class UserPolicy
      */
     public function update(User $user, User $model)
     {
-        return $user->id === $model->id || $user->role === 'Admin';
+        return $user->id === $model->id || $user->role === 'ADMIN';
     }
 
 

@@ -6,7 +6,7 @@ use App\Models\User;
 use App\Http\Requests\UserValidation;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
-use Illuminate\Http\Response;
+use Illuminate\Http\Request;
 use App\Enums\RoleEnum;
 use App\Enums\StatusEnum;
 use App\Rules\CustomPassword;
@@ -20,11 +20,23 @@ use App\Rules\PhoneNumber;
  */
 class UserController extends Controller
 {
-    /**
+ /**
      * @OA\Get(
      *     path="/api/v1/users",
      *     tags={"Users"},
-     *     summary="Get list of users",
+     *     summary="Get list of users with optional filters",
+     *     @OA\Parameter(
+     *         name="role",
+     *         in="query",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="active",
+     *         in="query",
+     *         required=false,
+     *         @OA\Schema(type="string", enum={"oui", "non"})
+     *     ),
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
@@ -36,11 +48,24 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::all();
+        $query = User::query();
+
+        if ($request->has('role')) {
+            $query->where('role', $request->role);
+        }
+
+        if ($request->has('active')) {
+            $etat = $request->active === 'oui';
+            $query->where('etat', $etat);
+        }
+
+        $users = $query->get();
+
         return $this->sendResponse(StatusEnum::SUCCESS, $users, 'Users retrieved successfully');
     }
+
 
     /**
      * @OA\Get(
@@ -164,6 +189,9 @@ class UserController extends Controller
 
         return $this->sendResponse(StatusEnum::SUCCESS, $user, 'User updated successfully');
     }
+
+
+
 
     /**
      * @OA\Delete(

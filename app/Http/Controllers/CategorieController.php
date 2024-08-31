@@ -94,10 +94,17 @@ class CategorieController extends Controller
      *     )
      * )
      */
-    public function show(Categorie $categorie)
+    public function show($id)
     {
-        return $this->sendResponse(StatusEnum::SUCCESS, $categorie, 'Category retrieved successfully');
+        try {
+            $categories = Categorie::findOrFail($id);
+            return $this->sendResponse(StatusEnum::SUCCESS, $categories, 'Category retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->sendError(StatusEnum::ERROR, 'Category not found');
+        }
     }
+
+
 
     /**
      * @OA\Patch(

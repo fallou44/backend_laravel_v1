@@ -84,6 +84,9 @@ class ArticleController extends Controller
     public function store(StoreArticleRequest $request)
     {
         $article = Article::create($request->validated());
+        if (!$article) {
+            return $this->sendError(StatusEnum::ERROR, 'Article not created');
+        }
         return $this->sendResponse(StatusEnum::SUCCESS, $article, 'Article created successfully');
     }
 

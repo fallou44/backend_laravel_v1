@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Http\Requests\UserValidation;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Http\Request;
 use App\Enums\RoleEnum;
 use App\Enums\StatusEnum;
-use App\Rules\CustomPassword;
-use App\Rules\PhoneNumber;
+use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\QueryBuilder\AllowedFilter;
+
 
 /**
  * @OA\Tag(
@@ -48,22 +48,24 @@ class UserController extends Controller
      *     )
      * )
      */
+
     public function index(Request $request)
     {
-        $query = User::query();
+        $users = QueryBuilder::for(User::class)
+            ->allowedFilters([
+                'role',
+                AllowedFilter::callback('active', function ($query, $value) {
+                    $query->where('etat', $value === 'oui');
+                }),
+            ])
+            ->allowedSorts(['role', 'created_at', 'name'])
+            ->paginate($request->input('per_page', 15));
 
-        if ($request->has('role')) {
-            $query->where('role', $request->role);
-        }
-
-        if ($request->has('active')) {
-            $etat = $request->active === 'oui';
-            $query->where('etat', $etat);
-        }
-
-        $users = $query->get();
-
-        return $this->sendResponse(StatusEnum::SUCCESS, $users, 'Users retrieved successfully');
+        return $this->sendResponse(
+            StatusEnum::SUCCESS,
+            $users,
+            'Users retrieved successfully'
+        );
     }
 
 

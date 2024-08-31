@@ -33,4 +33,27 @@ class Client extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // Dans Client.php
+    public function scopeTelephone($query, $telephone)
+    {
+        return $query->where('telephone', $telephone);
+    }
+
+
+    public function scopeComptes($query, $comptes)
+    {
+        // Exemple de filtre pour comptes (vous devez adapter selon la logique de votre application)
+        return $query->whereHas('user', function ($q) use ($comptes) {
+            $q->where('comptes', $comptes === 'oui');
+        });
+    }
+
+    public function scopeActive($query, $active)
+    {
+        // Exemple de filtre pour actif (vous devez adapter selon la logique de votre application)
+        return $query->whereHas('user', function ($q) use ($active) {
+            $q->where('etat', $active === 'oui');
+        });
+    }
 }

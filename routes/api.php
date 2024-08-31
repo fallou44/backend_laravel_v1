@@ -50,18 +50,20 @@ Route::middleware(['auth:sanctum', /*'checkToken'*/])->group(function () {
     });
 
     // Routes pour les articles
-    // Route::get('/', [ArticleController::class, 'index'])->name('index');
-    // Route::get('/{id}', [ArticleController::class, 'show'])->name('show');
-    // Route::post('/', [ArticleController::class, 'store'])->name('store');
-    // Route::delete('/{article}', [ArticleController::class, 'destroy'])->name('destroy');
-    // Route::get('/trashed', [ArticleController::class, 'trashed'])->name('trashed');
-    // Route::post('/{id}/restore', [ArticleController::class, 'restore'])->name('restore');
-    // Route::delete('/{id}/force', [ArticleController::class, 'forceDelete'])->name('forceDelete');
-    // Route::post('/stock', [ArticleController::class, 'updateStock'])->name('updateStock');
-    // Route::patch('/{id}', [ArticleController::class, 'updateOrUpdateStock'])->name('updateOrUpdateStock');
-    // Route::patch('/{id}', [ArticleController::class, 'updateStockSingle'])->name('updateStockSingle');
-    // Route::post('/libelle', [ArticleController::class, 'searchByLibelle'])->name('searchByLibelle');
-    // });
+    Route::prefix('v1/articles')->as('articles.')->group(function () {
+        Route::get('/', [ArticleController::class, 'index'])->name('index');
+        Route::get('/{id}', [ArticleController::class, 'show'])->name('show');
+        Route::post('/', [ArticleController::class, 'store'])->name('store');
+        Route::delete('/{article}', [ArticleController::class, 'destroy'])->name('destroy');
+        Route::get('/trashed', [ArticleController::class, 'trashed'])->name('trashed');
+        Route::post('/{id}/restore', [ArticleController::class, 'restore'])->name('restore');
+        Route::delete('/{id}/force', [ArticleController::class, 'forceDelete'])->name('forceDelete');
+        Route::post('/stock', [ArticleController::class, 'updateStock'])->name('updateStock');
+        // Route::patch('/{id}', [ArticleController::class, 'updateOrUpdateStock'])->name('updateOrUpdateStock');
+        Route::patch('/{id}', [ArticleController::class, 'updateStockSingle'])->name('updateStockSingle');
+        Route::post('/libelle', [ArticleController::class, 'searchByLibelle'])->name('searchByLibelle');
+
+    });
 
     // Routes pour les catégoriess
     Route::prefix('v1/categories')->as('categories.')->group(function () {
@@ -89,6 +91,15 @@ Route::middleware(['auth:sanctum', /*'checkToken'*/])->group(function () {
 
 
 
+Route::prefix('v1/clients')->as('clients.')->group(function () {
+    Route::get('/', [ClientController::class, 'index'])->name('index');
+    Route::get('/{id}', [ClientController::class, 'show'])->name('show');
+    Route::post('/', [ClientController::class, 'store'])->name('store');
+    Route::patch('/{client}', [ClientController::class, 'update'])->name('update');
+    Route::delete('/{client}', [ClientController::class, 'destroy'])->name('destroy');
+});
+
+
 Route::prefix('v1/users')->as('users.')->group(function () {
     Route::get('/', [UserController::class, 'index'])->name('index');
     Route::get('/{id}', [UserController::class, 'show'])->name('show');
@@ -98,8 +109,7 @@ Route::prefix('v1/users')->as('users.')->group(function () {
 });
 
 
-
-// // Routes pour les articles (middleware commenté pour permettre les tests)
+// Routes pour les articles (middleware commenté pour permettre les tests)
 // Route::prefix('v1/articles')->as('articles.')->group(function () {
 //     Route::get('/', [ArticleController::class, 'index'])->name('index');
 //     Route::get('/{id}', [ArticleController::class, 'show'])->name('show');

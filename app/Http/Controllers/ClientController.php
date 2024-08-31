@@ -12,6 +12,9 @@ use App\Enums\StatusEnum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\QueryBuilder\AllowedFilter;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @OA\Tag(
@@ -21,7 +24,7 @@ use Illuminate\Support\Facades\Hash;
  */
 class ClientController extends Controller
 {
-  /**
+    /**
      * @OA\Get(
      *     path="/api/v1/clients",
      *     tags={"Clients"},
@@ -46,6 +49,13 @@ class ClientController extends Controller
      *         description="Include related models",
      *         required=false,
      *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="comptes",
+     *         in="query",
+     *         description="Filter clients with or without accounts (oui|non)",
+     *         required=false,
+     *         @OA\Schema(type="string", enum={"oui", "non"})
      *     ),
      *     @OA\Parameter(
      *         name="page",
@@ -74,38 +84,61 @@ class ClientController extends Controller
      */
     public function index(Request $request)
     {
+        // Initialisez la requête
         $query = Client::query();
 
         // Filtre par numéro de téléphone
-        if ($request->has('telephone')) {
-            $telephones = explode(',', $request->input('telephone'));
-            $query->whereIn('telephone', $telephones);
-        }
+        $query->when($request->input('telephone'), function ($q, $telephone) {
+            $telephones = explode(',', $telephone);
+            $q->whereIn('telephone', $telephones);
+        });
 
         // Tri
-        if ($request->has('sort')) {
-            $sortField = $request->input('sort');
-            $sortDirection = 'asc';
-            if (strpos($sortField, '-') === 0) {
-                $sortField = substr($sortField, 1);
-                $sortDirection = 'desc';
-            }
-            $query->orderBy($sortField, $sortDirection);
-        }
+        $query->when($request->input('sort'), function ($q, $sort) {
+            $sortDirection = $sort[0] === '-' ? 'desc' : 'asc';
+            $sortField = ltrim($sort, '-');
+            $q->orderBy($sortField, $sortDirection);
+        });
+
+        // Filtre par comptes
+        $query->when($request->input('comptes'), function ($q, $comptes) {
+            $q->where($comptes === 'oui' ? 'user_id' : 'user_id', $comptes === 'oui' ? '!=' : '=', null);
+        });
+
+        // Filtrer par état du compte utilisateur (actif)
+        $query->when($request->input('active'), function ($q, $active) {
+            $isActive = $active === 'oui';
+            $q->whereHas('user', fn ($q) => $q->where('etat', $isActive));
+        });
 
         // Inclusion de la relation utilisateur
-        if ($request->has('include') && $request->input('include') === 'user') {
+        if ($request->input('include') === 'user') {
             $query->with('user');
         }
 
+        // Pagination
         $clients = $query->paginate(15);
 
+        // Journalisation des détails pour débogage
+        // Log::info('Request Parameters:', ['telephone' => $request->input('telephone')]);
+        // Log::info('Query Before Pagination:', ['query' => $query->toSql(), 'bindings' => $query->getBindings()]);
+        // Log::info('Query After Pagination:', ['clients' => $clients]);
+
+        // Retourner la réponse formatée
         return $this->sendResponse(
             StatusEnum::SUCCESS,
-            new ClientCollection($clients),
+            [
+                new ClientCollection($clients),
+            ],
             'Clients retrieved successfully'
         );
     }
+
+
+
+
+
+
 
     /**
      * @OA\Get(
@@ -149,15 +182,16 @@ class ClientController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             required={"surnom", "telephone"},
-     *             @OA\Property(property="surnom", type="string"),
-     *             @OA\Property(property="telephone", type="string"),
-     *             @OA\Property(property="adresse", type="string", nullable=true),
+     *             @OA\Property(property="surnom", type="string", description="Unique nickname for the client"),
+     *             @OA\Property(property="telephone", type="string", description="Unique phone number for the client"),
+     *             @OA\Property(property="adresse", type="string", nullable=true, description="Client's address"),
      *             @OA\Property(property="user", type="object", nullable=true,
-     *                 @OA\Property(property="prenom", type="string"),
-     *                 @OA\Property(property="nom", type="string"),
-     *                 @OA\Property(property="email", type="string"),
-     *                 @OA\Property(property="mot_de_passe", type="string"),
-     *                 @OA\Property(property="role", type="string")
+     *                 @OA\Property(property="prenom", type="string", description="User's first name"),
+     *                 @OA\Property(property="nom", type="string", description="User's last name"),
+     *                 @OA\Property(property="email", type="string", format="email", description="Unique email for the user"),
+     *                 @OA\Property(property="mot_de_passe", type="string", format="password", description="User's password (min 8 characters, mixed case, numbers, and symbols)"),
+     *                 @OA\Property(property="mot_de_passe_confirmation", type="string", format="password", description="Confirmation of the user's password"),
+     *                 @OA\Property(property="role", type="string", enum={"CLIENT"}, description="User's role")
      *             )
      *         )
      *     ),
@@ -173,7 +207,12 @@ class ClientController extends Controller
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Validation error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", enum={"ERROR"}),
+     *             @OA\Property(property="message", type="string")
+     *         )
      *     )
      * )
      */
@@ -185,13 +224,12 @@ class ClientController extends Controller
                 $userId = null;
 
                 if ($request->has('user')) {
-                    $userData = $request->get('user'); // Utilisation de get au lieu de input
+                    $userData = $request->get('user');
                     $userData['mot_de_passe'] = Hash::make($userData['mot_de_passe']);
                     $user = User::create($userData);
                     $userId = $user->id;
                 }
 
-                // Ajouter l'user_id au clientData seulement si un utilisateur a été créé
                 if ($userId) {
                     $clientData['user_id'] = $userId;
                 }

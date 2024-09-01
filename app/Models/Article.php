@@ -55,4 +55,11 @@ class Article extends Model
     {
         return $this->belongsTo(Promo::class);
     }
+
+    public function dettes()
+    {
+        return $this->belongsToMany(Dette::class, 'article_dette')
+                    ->withPivot('quantite', 'prix_unitaire')
+                    ->withTimestamps();
+    }
 }

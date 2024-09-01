@@ -28,6 +28,7 @@ class UserFactory extends Factory
             'prenom' => $this->faker->firstName,
             'email' => $this->faker->unique()->safeEmail,
             'mot_de_passe' => bcrypt('password'),
+            'etat' => $this->faker->randomElement([true, false]),
             'role' => $this->faker->randomElement(['ADMIN', 'BOUTIQUIER', 'CLIENT']),
         ];
     }

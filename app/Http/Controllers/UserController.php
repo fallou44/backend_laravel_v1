@@ -20,7 +20,7 @@ use Spatie\QueryBuilder\AllowedFilter;
  */
 class UserController extends Controller
 {
- /**
+    /**
      * @OA\Get(
      *     path="/api/v1/users",
      *     tags={"Users"},
@@ -52,21 +52,21 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $users = QueryBuilder::for(User::class)
-            ->allowedFilters([
-                'role',
-                AllowedFilter::callback('active', function ($query, $value) {
-                    $query->where('etat', $value === 'oui');
-                }),
-            ])
+            ->when($request->has('role'), function ($query) use ($request) {
+                $query->whereRaw('LOWER(role) = ?', [strtolower($request->input('role'))]);
+            })
+            ->when($request->has('active'), function ($query) use ($request) {
+                $query->where('etat', $request->input('active') === 'oui');
+            })
             ->allowedSorts(['role', 'created_at', 'name'])
             ->paginate($request->input('per_page', 15));
-
         return $this->sendResponse(
             StatusEnum::SUCCESS,
             $users,
             'Users retrieved successfully'
         );
     }
+
 
 
     /**

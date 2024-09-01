@@ -19,14 +19,14 @@ use Illuminate\Support\Facades\Log;
 /**
  * @OA\Tag(
  *     name="Clients",
- *     description="API Endpoints of Client management"
+ *     description="wane Endpoints of Client management"
  * )
  */
 class ClientController extends Controller
 {
     /**
      * @OA\Get(
-     *     path="/api/v1/clients",
+     *     path="/wane/v1/clients",
      *     tags={"Clients"},
      *     summary="Get list of clients with optional filters, sorting, and includes",
      *     @OA\Parameter(
@@ -84,52 +84,28 @@ class ClientController extends Controller
      */
     public function index(Request $request)
     {
-        // Initialisez la requête
-        $query = Client::query();
+        $clients = QueryBuilder::for(Client::class)
+            ->when($request->has('telephone'), function ($query) use ($request) {
+                $telephones = explode(',', $request->input('telephone'));
+                $query->whereIn('telephone', $telephones);
+            })
+            ->when($request->has('comptes'), function ($query) use ($request) {
+                $query->where('user_id', $request->input('comptes') === 'oui' ? '!=' : '=', null);
+            })
+            ->when($request->has('active'), function ($query) use ($request) {
+                $query->whereHas('user', function ($q) use ($request) {
+                    $q->where('etat', $request->input('active') === 'oui');
+                });
+            })
+            ->allowedSorts(['telephone', 'surnom', 'created_at'])
+            ->allowedIncludes(['user']);
 
-        // Filtre par numéro de téléphone
-        $query->when($request->input('telephone'), function ($q, $telephone) {
-            $telephones = explode(',', $telephone);
-            $q->whereIn('telephone', $telephones);
-        });
+        // Apply pagination
+        $paginatedClients = $clients->paginate(15);
 
-        // Tri
-        $query->when($request->input('sort'), function ($q, $sort) {
-            $sortDirection = $sort[0] === '-' ? 'desc' : 'asc';
-            $sortField = ltrim($sort, '-');
-            $q->orderBy($sortField, $sortDirection);
-        });
-
-        // Filtre par comptes
-        $query->when($request->input('comptes'), function ($q, $comptes) {
-            $q->where($comptes === 'oui' ? 'user_id' : 'user_id', $comptes === 'oui' ? '!=' : '=', null);
-        });
-
-        // Filtrer par état du compte utilisateur (actif)
-        $query->when($request->input('active'), function ($q, $active) {
-            $isActive = $active === 'oui';
-            $q->whereHas('user', fn ($q) => $q->where('etat', $isActive));
-        });
-
-        // Inclusion de la relation utilisateur
-        if ($request->input('include') === 'user') {
-            $query->with('user');
-        }
-
-        // Pagination
-        $clients = $query->paginate(15);
-
-        // Journalisation des détails pour débogage
-        // Log::info('Request Parameters:', ['telephone' => $request->input('telephone')]);
-        // Log::info('Query Before Pagination:', ['query' => $query->toSql(), 'bindings' => $query->getBindings()]);
-        // Log::info('Query After Pagination:', ['clients' => $clients]);
-
-        // Retourner la réponse formatée
         return $this->sendResponse(
             StatusEnum::SUCCESS,
-            [
-                new ClientCollection($clients),
-            ],
+            new ClientCollection($paginatedClients),
             'Clients retrieved successfully'
         );
     }
@@ -142,7 +118,7 @@ class ClientController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/v1/clients/{id}",
+     *     path="/wane/v1/clients/{id}",
      *     tags={"Clients"},
      *     summary="Get client information",
      *     @OA\Parameter(
@@ -175,7 +151,7 @@ class ClientController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/v1/clients",
+     *     path="/wane/v1/clients",
      *     tags={"Clients"},
      *     summary="Create a new client with or without associated user",
      *     @OA\RequestBody(
@@ -252,7 +228,7 @@ class ClientController extends Controller
 
     /**
      * @OA\Patch(
-     *     path="/api/v1/clients/{id}",
+     *     path="/wane/v1/clients/{id}",
      *     tags={"Clients"},
      *     summary="Update an existing client",
      *     @OA\Parameter(
@@ -312,7 +288,7 @@ class ClientController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/v1/clients/{id}",
+     *     path="/wane/v1/clients/{id}",
      *     tags={"Clients"},
      *     summary="Delete a client",
      *     @OA\Parameter(

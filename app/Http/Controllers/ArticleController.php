@@ -13,29 +13,42 @@ use Illuminate\Support\Facades\DB;
 /**
  * @OA\Tag(
  *     name="Articles",
- *     description="API Endpoints of Article management"
+ *     description="Points d'API pour la gestion des articles"
  * )
  */
 class ArticleController extends Controller
 {
     /**
+     * Affiche une liste paginée des articles.
+     *
+     * Cette méthode récupère une liste paginée d'articles, avec un filtre optionnel pour la disponibilité.
+     *
      * @OA\Get(
      *     path="/api/v1/articles",
      *     tags={"Articles"},
-     *     summary="Get list of articles",
+     *     summary="Obtenir la liste des articles",
      *     @OA\Parameter(
      *         name="disponible",
      *         in="query",
-     *         description="Filter articles by availability",
+     *         description="Filtrer les articles par disponibilité",
      *         required=false,
      *         @OA\Schema(type="string", enum={"oui", "non"})
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(type="object",
-     *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
-     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Article")),
+     *             @OA\Property(property="statut", type="string", enum={"SUCCES", "ERREUR"}),
+     *             @OA\Property(property="donnees", type="array", @OA\Items(ref="#/components/schemas/Article")),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erreur serveur",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="statut", type="string", enum={"ERREUR"}),
+     *             @OA\Property(property="donnees", type="null"),
      *             @OA\Property(property="message", type="string")
      *         )
      *     )
@@ -43,58 +56,85 @@ class ArticleController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Article::query();
+        try {
+            $query = Article::query();
 
-        if ($request->has('disponible')) {
-            if ($request->disponible === 'oui') {
-                $query->where('quantite', '>', 0);
-            } elseif ($request->disponible === 'non') {
-                $query->where('quantite', 0);
+            if ($request->has('disponible')) {
+                if ($request->disponible === 'oui') {
+                    $query->where('quantite', '>', 0);
+                } elseif ($request->disponible === 'non') {
+                    $query->where('quantite', 0);
+                }
             }
-        }
 
-        $articles = $query->paginate();
-        return $this->sendResponse(StatusEnum::SUCCESS, $articles, 'Articles retrieved successfully');
+            $articles = $query->paginate();
+            return $this->sendResponse(StatusEnum::SUCCESS, $articles, 'Articles récupérés avec succès');
+        } catch (\Exception $e) {
+            return $this->sendResponse(StatusEnum::ERROR, null, 'Une erreur est survenue lors de la récupération des articles : ' . $e->getMessage());
+        }
     }
 
     /**
+     * Enregistre un nouvel article dans la base de données.
+     *
+     * Cette méthode valide les données d'entrée et crée un nouvel article dans la base de données.
+     *
      * @OA\Post(
      *     path="/api/v1/articles",
      *     tags={"Articles"},
-     *     summary="Create a new article",
+     *     summary="Créer un nouvel article",
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(ref="#/components/schemas/Article")
      *     ),
      *     @OA\Response(
      *         response=201,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(type="object",
-     *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
-     *             @OA\Property(property="data", ref="#/components/schemas/Article"),
+     *             @OA\Property(property="statut", type="string", enum={"SUCCES", "ERREUR"}),
+     *             @OA\Property(property="donnees", ref="#/components/schemas/Article"),
      *             @OA\Property(property="message", type="string")
      *         )
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Erreur de validation",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="statut", type="string", enum={"ERREUR"}),
+     *             @OA\Property(property="donnees", type="object"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erreur serveur",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="statut", type="string", enum={"ERREUR"}),
+     *             @OA\Property(property="donnees", type="null"),
+     *             @OA\Property(property="message", type="string")
+     *         )
      *     )
      * )
      */
     public function store(StoreArticleRequest $request)
     {
-        $article = Article::create($request->validated());
-        if (!$article) {
-            return $this->sendError(StatusEnum::ERROR, 'Article not created');
+        try {
+            $article = Article::create($request->validated());
+            return $this->sendResponse(StatusEnum::SUCCESS, $article, 'Article créé avec succès');
+        } catch (\Exception $e) {
+            return $this->sendResponse(StatusEnum::ERROR, null, 'Une erreur est survenue lors de la création de l\'article : ' . $e->getMessage());
         }
-        return $this->sendResponse(StatusEnum::SUCCESS, $article, 'Article created successfully');
     }
 
     /**
+     * Affiche les détails d'un article spécifique.
+     *
+     * Cette méthode récupère et renvoie les détails d'un article spécifique.
+     *
      * @OA\Get(
      *     path="/api/v1/articles/{id}",
      *     tags={"Articles"},
-     *     summary="Get article information",
+     *     summary="Obtenir les informations d'un article",
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -103,37 +143,54 @@ class ArticleController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(type="object",
-     *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
-     *             @OA\Property(property="data", ref="#/components/schemas/Article"),
+     *             @OA\Property(property="statut", type="string", enum={"SUCCES", "ERREUR"}),
+     *             @OA\Property(property="donnees", ref="#/components/schemas/Article"),
      *             @OA\Property(property="message", type="string")
      *         )
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Article not found"
+     *         description="Article non trouvé",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="statut", type="string", enum={"ERREUR"}),
+     *             @OA\Property(property="donnees", type="null"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erreur serveur",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="statut", type="string", enum={"ERREUR"}),
+     *             @OA\Property(property="donnees", type="null"),
+     *             @OA\Property(property="message", type="string")
+     *         )
      *     )
      * )
      */
     public function show($id)
     {
-        $article = Article::find($id);
-
-        if (!$article) {
-            return $this->sendResponse(StatusEnum::ERROR, null, 'Article not found');
+        try {
+            $article = Article::findOrFail($id);
+            return $this->sendResponse(StatusEnum::SUCCESS, $article, 'Article récupéré avec succès');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return $this->sendResponse(StatusEnum::ERROR, null, 'Article non trouvé');
+        } catch (\Exception $e) {
+            return $this->sendResponse(StatusEnum::ERROR, null, 'Une erreur est survenue lors de la récupération de l\'article : ' . $e->getMessage());
         }
-
-        return $this->sendResponse(StatusEnum::SUCCESS, $article, 'Article retrieved successfully');
     }
 
-
-
     /**
+     * Met à jour le stock de plusieurs articles.
+     *
+     * Cette méthode met à jour la quantité de stock pour plusieurs articles dans une seule transaction.
+     *
      * @OA\Post(
      *     path="/api/v1/articles/stock",
      *     tags={"Articles"},
-     *     summary="Update stock of multiple articles",
+     *     summary="Mettre à jour le stock de plusieurs articles",
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -145,18 +202,33 @@ class ArticleController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(type="object",
-     *             @OA\Property(property="status", type="integer", example=200),
-     *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="success", type="array", @OA\Items(type="object")),
-     *                 @OA\Property(property="error", type="array", @OA\Items(type="object"))
-     *             )
+     *             @OA\Property(property="statut", type="string", enum={"SUCCES"}),
+     *             @OA\Property(property="donnees", type="object",
+     *                 @OA\Property(property="mises_a_jour_reussies", type="array", @OA\Items(type="object")),
+     *                 @OA\Property(property="mises_a_jour_echouees", type="array", @OA\Items(type="object"))
+     *             ),
+     *             @OA\Property(property="message", type="string")
      *         )
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Erreur de validation",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="statut", type="string", enum={"ERREUR"}),
+     *             @OA\Property(property="donnees", type="object"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erreur serveur",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="statut", type="string", enum={"ERREUR"}),
+     *             @OA\Property(property="donnees", type="null"),
+     *             @OA\Property(property="message", type="string")
+     *         )
      *     )
      * )
      */
@@ -164,60 +236,51 @@ class ArticleController extends Controller
     {
         $validatedData = $request->validated();
 
-        $successfulUpdates = [];
-        $failedUpdates = [];
+        $mises_a_jour_reussies = [];
+        $mises_a_jour_echouees = [];
 
         DB::beginTransaction();
 
         try {
             foreach ($validatedData['articles'] as $articleData) {
-
                 if ($articleData['quantite'] < 1) {
-                    $failedUpdates[] = [
+                    $mises_a_jour_echouees[] = [
                         'id' => $articleData['id'],
-                        'reason' => 'La quantité doit être positive'
+                        'raison' => 'La quantité doit être positive'
                     ];
                     continue;
                 }
-                $article = Article::find($articleData['id']);
+                $article = Article::findOrFail($articleData['id']);
+                $newQuantity = $article->quantite + $articleData['quantite'];
+                $article->update(['quantite' => $newQuantity]);
 
-                if ($article) {
-                    $newQuantity = $article->quantite + $articleData['quantite'];
-                    $article->update(['quantite' => $newQuantity]);
-
-                    $successfulUpdates[] = [
-                        'id' => $article->id,
-                        'newQuantity' => $newQuantity
-                    ];
-                } else {
-                    $failedUpdates[] = [
-                        'id' => $articleData['id'],
-                        'reason' => 'Article non trouvé'
-                    ];
-                }
+                $mises_a_jour_reussies[] = [
+                    'id' => $article->id,
+                    'nouvelle_quantite' => $newQuantity
+                ];
             }
 
             DB::commit();
 
-            return response()->json([
-                'message' => 'Mise à jour du stock effectuée',
-                'successfulUpdates' => $successfulUpdates,
-                'failedUpdates' => $failedUpdates
-            ]);
+            return $this->sendResponse(StatusEnum::SUCCESS, [
+                'mises_a_jour_reussies' => $mises_a_jour_reussies,
+                'mises_a_jour_echouees' => $mises_a_jour_echouees
+            ], 'Mise à jour du stock terminée');
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'message' => 'Une erreur est survenue lors de la mise à jour du stock',
-                'error' => $e->getMessage()
-            ], 500);
+            return $this->sendResponse(StatusEnum::ERROR, null, 'Une erreur est survenue lors de la mise à jour du stock : ' . $e->getMessage());
         }
     }
 
     /**
+     * Recherche des articles par libellé (insensible à la casse).
+     *
+     * Cette méthode effectue une recherche insensible à la casse des articles basée sur leur libellé.
+     *
      * @OA\Post(
      *     path="/api/v1/articles/libelle",
      *     tags={"Articles"},
-     *     summary="Search articles by libelle (case-insensitive)",
+     *     summary="Rechercher des articles par libellé (insensible à la casse)",
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -226,41 +289,59 @@ class ArticleController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(type="object",
-     *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
-     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Article")),
+     *             @OA\Property(property="statut", type="string", enum={"SUCCES", "ERREUR"}),
+     *             @OA\Property(property="donnees", type="array", @OA\Items(ref="#/components/schemas/Article")),
      *             @OA\Property(property="message", type="string")
      *         )
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Erreur de validation",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="statut", type="string", enum={"ERREUR"}),
+     *             @OA\Property(property="donnees", type="object"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erreur serveur",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="statut", type="string", enum={"ERREUR"}),
+     *             @OA\Property(property="donnees", type="null"),
+     *             @OA\Property(property="message", type="string")
+     *         )
      *     )
      * )
      */
     public function searchByLibelle(Request $request)
     {
-        $request->validate([
-            'libelle' => 'required|string|min:3|max:255',
-        ]);
+        try {
+            $request->validate([
+                'libelle' => 'required|string|min:3|max:255',
+            ]);
 
-        $libelle = strtolower($request->input('libelle'));
+            $libelle = strtolower($request->input('libelle'));
 
-        $articles = Article::whereRaw('LOWER(libele) LIKE ?', ["%{$libelle}%"])->get();
+            $articles = Article::whereRaw('LOWER(libele) LIKE ?', ["%{$libelle}%"])->get();
 
-        return $this->sendResponse(
-            StatusEnum::SUCCESS,
-            $articles,
-            'Articles retrieved successfully'
-        );
+            return $this->sendResponse(StatusEnum::SUCCESS, $articles, 'Articles récupérés avec succès');
+        } catch (\Exception $e) {
+            return $this->sendResponse(StatusEnum::ERROR, null, 'Une erreur est survenue lors de la recherche des articles : ' . $e->getMessage());
+        }
     }
 
-    /**
+/**
+     * Met à jour la quantité de stock d'un seul article.
+     *
+     * Cette méthode met à jour la quantité de stock pour un seul article.
+     *
      * @OA\Patch(
      *     path="/api/v1/articles/{id}",
      *     tags={"Articles"},
-     *     summary="Update stock quantity of a single article",
+     *     summary="Mettre à jour la quantité de stock d'un seul article",
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -275,52 +356,69 @@ class ArticleController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(type="object",
-     *             @OA\Property(property="status", type="string", enum={"SUCCESS"}),
-     *             @OA\Property(property="data", ref="#/components/schemas/Article"),
+     *             @OA\Property(property="statut", type="string", enum={"SUCCES"}),
+     *             @OA\Property(property="donnees", ref="#/components/schemas/Article"),
      *             @OA\Property(property="message", type="string")
      *         )
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Article not found",
+     *         description="Article non trouvé",
      *         @OA\JsonContent(type="object",
-     *             @OA\Property(property="status", type="string", enum={"ERROR"}),
-     *             @OA\Property(property="data", type="null"),
+     *             @OA\Property(property="statut", type="string", enum={"ERREUR"}),
+     *             @OA\Property(property="donnees", type="null"),
      *             @OA\Property(property="message", type="string")
      *         )
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Erreur de validation",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="statut", type="string", enum={"ERREUR"}),
+     *             @OA\Property(property="donnees", type="object"),
+     *             @OA\Property(property="message", type="string")
+     *         )
      *     )
      * )
      */
     public function updateStockSingle(Request $request, $id)
     {
-        $article = Article::findOrFail($id);
+        try {
+            $article = Article::findOrFail($id);
 
-        $request->validate([
-            'quantite' => 'required|integer|min:1',
-        ]);
+            $request->validate([
+                'quantite' => 'required|integer|min:1',
+            ]);
 
-        $newQuantity = $article->quantite + $request->quantite;
+            $newQuantity = $article->quantite + $request->quantite;
 
-        if ($newQuantity < 0) {
-            return $this->sendResponse(StatusEnum::ERROR, null, 'La quantité résultante serait négative');
+            if ($newQuantity < 0) {
+                return $this->sendResponse(StatusEnum::ERROR, null, 'La quantité résultante serait négative');
+            }
+
+            $article->update(['quantite' => $newQuantity]);
+
+            return $this->sendResponse(StatusEnum::SUCCESS, $article, 'Quantité de stock mise à jour avec succès');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return $this->sendResponse(StatusEnum::ERROR, null, 'Article non trouvé');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->sendResponse(StatusEnum::ERROR, $e->errors(), 'Erreur de validation');
+        } catch (\Exception $e) {
+            return $this->sendResponse(StatusEnum::ERROR, null, 'Une erreur est survenue lors de la mise à jour du stock : ' . $e->getMessage());
         }
-
-        $article->update(['quantite' => $newQuantity]);
-
-        return $this->sendResponse(StatusEnum::SUCCESS, $article, 'Quantité de stock mise à jour avec succès');
     }
 
     /**
+     * Met à jour un article existant.
+     *
+     * Cette méthode met à jour les informations d'un article existant.
+     *
      * @OA\Patch(
      *     path="/api/v1/articles/{id}",
      *     tags={"Articles"},
-     *     summary="Update an existing article",
+     *     summary="Mettre à jour un article existant",
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -333,34 +431,52 @@ class ArticleController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(type="object",
-     *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
-     *             @OA\Property(property="data", ref="#/components/schemas/Article"),
+     *             @OA\Property(property="statut", type="string", enum={"SUCCES", "ERREUR"}),
+     *             @OA\Property(property="donnees", ref="#/components/schemas/Article"),
      *             @OA\Property(property="message", type="string")
      *         )
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Article not found"
+     *         description="Article non trouvé",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="statut", type="string", enum={"ERREUR"}),
+     *             @OA\Property(property="donnees", type="null"),
+     *             @OA\Property(property="message", type="string")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Erreur de validation",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="statut", type="string", enum={"ERREUR"}),
+     *             @OA\Property(property="donnees", type="object"),
+     *             @OA\Property(property="message", type="string")
+     *         )
      *     )
      * )
      */
     public function update(UpdateArticleRequest $request, Article $article)
     {
-        $article->update($request->validated());
-        return $this->sendResponse(StatusEnum::SUCCESS, $article, 'Article updated successfully');
+        try {
+            $article->update($request->validated());
+            return $this->sendResponse(StatusEnum::SUCCESS, $article, 'Article mis à jour avec succès');
+        } catch (\Exception $e) {
+            return $this->sendResponse(StatusEnum::ERROR, null, 'Une erreur est survenue lors de la mise à jour de l\'article : ' . $e->getMessage());
+        }
     }
 
     /**
+     * Supprime un article.
+     *
+     * Cette méthode supprime un article spécifique.
+     *
      * @OA\Delete(
      *     path="/api/v1/articles/{id}",
      *     tags={"Articles"},
-     *     summary="Delete an article",
+     *     summary="Supprimer un article",
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -369,36 +485,58 @@ class ArticleController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(type="object",
-     *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
-     *             @OA\Property(property="data", type="null"),
+     *             @OA\Property(property="statut", type="string", enum={"SUCCES", "ERREUR"}),
+     *             @OA\Property(property="donnees", type="null"),
      *             @OA\Property(property="message", type="string")
      *         )
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Article not found"
+     *         description="Article non trouvé",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="statut", type="string", enum={"ERREUR"}),
+     *             @OA\Property(property="donnees", type="null"),
+     *             @OA\Property(property="message", type="string")
+     *         )
      *     )
      * )
      */
     public function destroy(Article $article)
     {
-        $article->delete();
-        return $this->sendResponse(StatusEnum::SUCCESS, null, 'Article deleted successfully');
+        try {
+            $article->delete();
+            return $this->sendResponse(StatusEnum::SUCCESS, null, 'Article supprimé avec succès');
+        } catch (\Exception $e) {
+            return $this->sendResponse(StatusEnum::ERROR, null, 'Une erreur est survenue lors de la suppression de l\'article : ' . $e->getMessage());
+        }
     }
 
     /**
+     * Récupère la liste des articles supprimés.
+     *
+     * Cette méthode récupère une liste paginée des articles qui ont été supprimés (soft delete).
+     *
      * @OA\Get(
      *     path="/api/v1/articles/trashed",
      *     tags={"Articles"},
-     *     summary="Get list of trashed articles",
+     *     summary="Obtenir la liste des articles supprimés",
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(type="object",
-     *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
-     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Article")),
+     *             @OA\Property(property="statut", type="string", enum={"SUCCES", "ERREUR"}),
+     *             @OA\Property(property="donnees", type="array", @OA\Items(ref="#/components/schemas/Article")),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erreur serveur",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="statut", type="string", enum={"ERREUR"}),
+     *             @OA\Property(property="donnees", type="null"),
      *             @OA\Property(property="message", type="string")
      *         )
      *     )
@@ -406,15 +544,23 @@ class ArticleController extends Controller
      */
     public function trashed()
     {
-        $trashedArticles = Article::onlyTrashed()->paginate();
-        return $this->sendResponse(StatusEnum::SUCCESS, $trashedArticles, 'Trashed articles retrieved successfully');
+        try {
+            $trashedArticles = Article::onlyTrashed()->paginate();
+            return $this->sendResponse(StatusEnum::SUCCESS, $trashedArticles, 'Articles supprimés récupérés avec succès');
+        } catch (\Exception $e) {
+            return $this->sendResponse(StatusEnum::ERROR, null, 'Une erreur est survenue lors de la récupération des articles supprimés : ' . $e->getMessage());
+        }
     }
 
     /**
+     * Restaure un article supprimé.
+     *
+     * Cette méthode restaure un article qui a été précédemment supprimé (soft delete).
+     *
      * @OA\Post(
      *     path="/api/v1/articles/{id}/restore",
      *     tags={"Articles"},
-     *     summary="Restore a trashed article",
+     *     summary="Restaurer un article supprimé",
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -423,31 +569,46 @@ class ArticleController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(type="object",
-     *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
-     *             @OA\Property(property="data", ref="#/components/schemas/Article"),
+     *             @OA\Property(property="statut", type="string", enum={"SUCCES", "ERREUR"}),
+     *             @OA\Property(property="donnees", ref="#/components/schemas/Article"),
      *             @OA\Property(property="message", type="string")
      *         )
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Article not found"
+     *         description="Article non trouvé",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="statut", type="string", enum={"ERREUR"}),
+     *             @OA\Property(property="donnees", type="null"),
+     *             @OA\Property(property="message", type="string")
+     *         )
      *     )
      * )
      */
     public function restore($id)
     {
-        $article = Article::withTrashed()->findOrFail($id);
-        $article->restore();
-        return $this->sendResponse(StatusEnum::SUCCESS, $article, 'Article restored successfully');
+        try {
+            $article = Article::withTrashed()->findOrFail($id);
+            $article->restore();
+            return $this->sendResponse(StatusEnum::SUCCESS, $article, 'Article restauré avec succès');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return $this->sendResponse(StatusEnum::ERROR, null, 'Article non trouvé');
+        } catch (\Exception $e) {
+            return $this->sendResponse(StatusEnum::ERROR, null, 'Une erreur est survenue lors de la restauration de l\'article : ' . $e->getMessage());
+        }
     }
 
     /**
+     * Supprime définitivement un article.
+     *
+     * Cette méthode supprime définitivement un article de la base de données.
+     *
      * @OA\Delete(
      *     path="/api/v1/articles/{id}/force",
      *     tags={"Articles"},
-     *     summary="Permanently delete an article",
+     *     summary="Supprimer définitivement un article",
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -456,23 +617,34 @@ class ArticleController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(type="object",
-     *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
-     *             @OA\Property(property="data", type="null"),
+     *             @OA\Property(property="statut", type="string", enum={"SUCCES", "ERREUR"}),
+     *             @OA\Property(property="donnees", type="null"),
      *             @OA\Property(property="message", type="string")
      *         )
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Article not found"
+     *         description="Article non trouvé",
+     *         @OA\JsonContent(type="object",
+     *             @OA\Property(property="statut", type="string", enum={"ERREUR"}),
+     *             @OA\Property(property="donnees", type="null"),
+     *             @OA\Property(property="message", type="string")
+     *         )
      *     )
      * )
      */
     public function forceDelete($id)
     {
-        $article = Article::withTrashed()->findOrFail($id);
-        $article->forceDelete();
-        return $this->sendResponse(StatusEnum::SUCCESS, null, 'Article permanently deleted');
+        try {
+            $article = Article::withTrashed()->findOrFail($id);
+            $article->forceDelete();
+            return $this->sendResponse(StatusEnum::SUCCESS, null, 'Article supprimé définitivement');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return $this->sendResponse(StatusEnum::ERROR, null, 'Article non trouvé');
+        } catch (\Exception $e) {
+            return $this->sendResponse(StatusEnum::ERROR, null, 'Une erreur est survenue lors de la suppression définitive de l\'article : ' . $e->getMessage());
+        }
     }
 }

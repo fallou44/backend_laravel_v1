@@ -10,8 +10,8 @@ use Illuminate\Http\Response;
 
 /**
  * @OA\Tag(
- *     name="Categories",
- *     description="API Endpoints of Category management"
+ *     name="Catégories",
+ *     description="Points de terminaison API pour la gestion des catégories"
  * )
  */
 class CategorieController extends Controller
@@ -19,11 +19,11 @@ class CategorieController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/categories",
-     *     tags={"Categories"},
-     *     summary="Get list of categories",
+     *     tags={"Catégories"},
+     *     summary="Obtenir la liste des catégories",
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(type="object",
      *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
      *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Categorie")),
@@ -34,22 +34,26 @@ class CategorieController extends Controller
      */
     public function index()
     {
-        $categories = Categorie::paginate();
-        return $this->sendResponse(StatusEnum::SUCCESS, $categories, 'Categories retrieved successfully');
+        try {
+            $categories = Categorie::paginate();
+            return $this->sendResponse(StatusEnum::SUCCESS, $categories, 'Catégories récupérées avec succès');
+        } catch (\Exception $e) {
+            return $this->sendError(StatusEnum::ERROR, 'Erreur lors de la récupération des catégories: ' . $e->getMessage());
+        }
     }
 
     /**
      * @OA\Post(
      *     path="/api/v1/categories",
-     *     tags={"Categories"},
-     *     summary="Create a new category",
+     *     tags={"Catégories"},
+     *     summary="Créer une nouvelle catégorie",
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(ref="#/components/schemas/Categorie")
      *     ),
      *     @OA\Response(
      *         response=201,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(type="object",
      *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
      *             @OA\Property(property="data", ref="#/components/schemas/Categorie"),
@@ -58,21 +62,25 @@ class CategorieController extends Controller
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Erreur de validation"
      *     )
      * )
      */
     public function store(StoreCategorieRequest $request)
     {
-        $categorie = Categorie::create($request->validated());
-        return $this->sendResponse(StatusEnum::SUCCESS, $categorie, 'Category created successfully');
+        try {
+            $categorie = Categorie::create($request->validated());
+            return $this->sendResponse(StatusEnum::SUCCESS, $categorie, 'Catégorie créée avec succès');
+        } catch (\Exception $e) {
+            return $this->sendError(StatusEnum::ERROR, 'Erreur lors de la création de la catégorie: ' . $e->getMessage());
+        }
     }
 
     /**
      * @OA\Get(
      *     path="/api/v1/categories/{id}",
-     *     tags={"Categories"},
-     *     summary="Get category information",
+     *     tags={"Catégories"},
+     *     summary="Obtenir les informations d'une catégorie",
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -81,7 +89,7 @@ class CategorieController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(type="object",
      *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
      *             @OA\Property(property="data", ref="#/components/schemas/Categorie"),
@@ -90,27 +98,25 @@ class CategorieController extends Controller
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Category not found"
+     *         description="Catégorie non trouvée"
      *     )
      * )
      */
     public function show($id)
     {
         try {
-            $categories = Categorie::findOrFail($id);
-            return $this->sendResponse(StatusEnum::SUCCESS, $categories, 'Category retrieved successfully');
+            $categorie = Categorie::findOrFail($id);
+            return $this->sendResponse(StatusEnum::SUCCESS, $categorie, 'Catégorie récupérée avec succès');
         } catch (\Exception $e) {
-            return $this->sendError(StatusEnum::ERROR, 'Category not found');
+            return $this->sendError(StatusEnum::ERROR, 'Catégorie non trouvée');
         }
     }
-
-
 
     /**
      * @OA\Patch(
      *     path="/api/v1/categories/{id}",
-     *     tags={"Categories"},
-     *     summary="Update an existing category",
+     *     tags={"Catégories"},
+     *     summary="Mettre à jour une catégorie existante",
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -123,7 +129,7 @@ class CategorieController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(type="object",
      *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
      *             @OA\Property(property="data", ref="#/components/schemas/Categorie"),
@@ -132,25 +138,30 @@ class CategorieController extends Controller
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Category not found"
+     *         description="Catégorie non trouvée"
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Erreur de validation"
      *     )
      * )
      */
-    public function update(UpdateCategorieRequest $request, Categorie $categorie)
+    public function update(UpdateCategorieRequest $request, $id)
     {
-        $categorie->update($request->validated());
-        return $this->sendResponse(StatusEnum::SUCCESS, $categorie, 'Category updated successfully');
+        try {
+            $categorie = Categorie::findOrFail($id);
+            $categorie->update($request->validated());
+            return $this->sendResponse(StatusEnum::SUCCESS, $categorie, 'Catégorie mise à jour avec succès');
+        } catch (\Exception $e) {
+            return $this->sendError(StatusEnum::ERROR, 'Erreur lors de la mise à jour de la catégorie: ' . $e->getMessage());
+        }
     }
 
     /**
      * @OA\Delete(
      *     path="/api/v1/categories/{id}",
-     *     tags={"Categories"},
-     *     summary="Delete a category",
+     *     tags={"Catégories"},
+     *     summary="Supprimer une catégorie",
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -159,7 +170,7 @@ class CategorieController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(type="object",
      *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
      *             @OA\Property(property="data", type="null"),
@@ -168,13 +179,18 @@ class CategorieController extends Controller
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Category not found"
+     *         description="Catégorie non trouvée"
      *     )
      * )
      */
-    public function destroy(Categorie $categorie)
+    public function destroy($id)
     {
-        $categorie->delete();
-        return $this->sendResponse(StatusEnum::SUCCESS, null, 'Category deleted successfully');
+        try {
+            $categorie = Categorie::findOrFail($id);
+            $categorie->delete();
+            return $this->sendResponse(StatusEnum::SUCCESS, null, 'Catégorie supprimée avec succès');
+        } catch (\Exception $e) {
+            return $this->sendError(StatusEnum::ERROR, 'Erreur lors de la suppression de la catégorie: ' . $e->getMessage());
+        }
     }
 }

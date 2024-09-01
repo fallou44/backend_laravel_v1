@@ -17,6 +17,12 @@ class Dette extends Model
         'client_id'
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime'
+    ];
+
     protected $dates = ['date_echeance', 'deleted_at'];
 
     public function client()

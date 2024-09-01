@@ -91,12 +91,18 @@ Route::middleware(['auth:sanctum', /*'checkToken'*/])->group(function () {
 
 
 
+
+
 Route::prefix('v1/clients')->as('clients.')->group(function () {
     Route::get('/', [ClientController::class, 'index'])->name('index');
     Route::get('/{id}', [ClientController::class, 'show'])->name('show');
     Route::post('/', [ClientController::class, 'store'])->name('store');
     Route::patch('/{client}', [ClientController::class, 'update'])->name('update');
     Route::delete('/{client}', [ClientController::class, 'destroy'])->name('destroy');
+
+
+    Route::get('/{id}/dettes', [ClientController::class, 'listDettes'])->name('list-dettes');
+    Route::get('/{id}/user', [ClientController::class, 'showUserInfo'])->name('show-user-info');
 });
 
 

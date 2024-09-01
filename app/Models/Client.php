@@ -56,4 +56,9 @@ class Client extends Model
             $q->where('etat', $active === 'oui');
         });
     }
+
+    public function dettes()
+    {
+        return $this->hasMany(Dette::class, 'client_id');
+    }
 }

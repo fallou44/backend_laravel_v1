@@ -60,11 +60,7 @@ class Client extends Model
 
     public function dettes()
     {
-<<<<<<< HEAD
 
         return $this->hasMany(Dette::class); // Assurez-vous que `Dettes` est le modèle correct
-=======
-        return $this->hasMany(Dette::class, 'client_id');
->>>>>>> e6f87d87d54ecc159386c16d38c14c9190e7121e
     }
 }

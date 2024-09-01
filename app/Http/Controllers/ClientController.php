@@ -85,6 +85,9 @@ class ClientController extends Controller
      */
     public function index(Request $request)
     {
+        // Autorisation
+        $this->authorize('viewAny', Client::class);
+
         $clients = QueryBuilder::for(Client::class)
             ->when($request->has('telephone'), function ($query) use ($request) {
                 $telephones = explode(',', $request->input('telephone'));

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+
 /**
  * @OA\Schema(
  *     schema="Client",
@@ -55,5 +56,11 @@ class Client extends Model
         return $query->whereHas('user', function ($q) use ($active) {
             $q->where('etat', $active === 'oui');
         });
+    }
+
+    public function dettes()
+    {
+
+        return $this->hasMany(Dette::class); // Assurez-vous que `Dettes` est le modèle correct
     }
 }

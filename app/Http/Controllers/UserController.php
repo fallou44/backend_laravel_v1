@@ -15,7 +15,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 /**
  * @OA\Tag(
  *     name="Users",
- *     description="API Endpoints of User management"
+ *     description="Points de terminaison API pour la gestion des utilisateurs"
  * )
  */
 class UserController extends Controller
@@ -24,7 +24,7 @@ class UserController extends Controller
      * @OA\Get(
      *     path="/api/v1/users",
      *     tags={"Users"},
-     *     summary="Get list of users with optional filters",
+     *     summary="Obtenir la liste des utilisateurs avec des filtres optionnels",
      *     @OA\Parameter(
      *         name="role",
      *         in="query",
@@ -39,7 +39,7 @@ class UserController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(type="object",
      *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
      *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/User")),
@@ -63,17 +63,15 @@ class UserController extends Controller
         return $this->sendResponse(
             StatusEnum::SUCCESS,
             $users,
-            'Users retrieved successfully'
+            'Liste des utilisateurs récupérée avec succès'
         );
     }
-
-
 
     /**
      * @OA\Get(
      *     path="/api/v1/users/{id}",
      *     tags={"Users"},
-     *     summary="Get user information",
+     *     summary="Obtenir les informations d'un utilisateur",
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -82,7 +80,7 @@ class UserController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(type="object",
      *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
      *             @OA\Property(property="data", ref="#/components/schemas/User"),
@@ -91,7 +89,7 @@ class UserController extends Controller
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="User not found"
+     *         description="Utilisateur non trouvé"
      *     )
      * )
      */
@@ -99,9 +97,9 @@ class UserController extends Controller
     {
         try {
             $user = User::findOrFail($id);
-            return $this->sendResponse(StatusEnum::SUCCESS, $user, 'User retrieved successfully');
+            return $this->sendResponse(StatusEnum::SUCCESS, $user, 'Utilisateur récupéré avec succès');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return $this->sendResponse(StatusEnum::ERROR, null, 'User not found');
+            return $this->sendResponse(StatusEnum::ERROR, null, 'Utilisateur non trouvé');
         }
     }
 
@@ -109,14 +107,14 @@ class UserController extends Controller
      * @OA\Post(
      *     path="/api/v1/users",
      *     tags={"Users"},
-     *     summary="Create a new user",
+     *     summary="Créer un nouvel utilisateur",
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(ref="#/components/schemas/User")
      *     ),
      *     @OA\Response(
      *         response=201,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(type="object",
      *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
      *             @OA\Property(property="data", ref="#/components/schemas/User"),
@@ -125,7 +123,7 @@ class UserController extends Controller
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Erreur de validation"
      *     )
      * )
      */
@@ -138,14 +136,14 @@ class UserController extends Controller
 
         $user = User::create($validatedData);
 
-        return $this->sendResponse(StatusEnum::SUCCESS, $user, 'User created successfully');
+        return $this->sendResponse(StatusEnum::SUCCESS, $user, 'Utilisateur créé avec succès');
     }
 
     /**
      * @OA\Patch(
      *     path="/api/v1/users/{id}",
      *     tags={"Users"},
-     *     summary="Update an existing user",
+     *     summary="Mettre à jour un utilisateur existant",
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -158,7 +156,7 @@ class UserController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(type="object",
      *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
      *             @OA\Property(property="data", ref="#/components/schemas/User"),
@@ -167,11 +165,11 @@ class UserController extends Controller
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="User not found"
+     *         description="Utilisateur non trouvé"
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Validation error"
+     *         description="Erreur de validation"
      *     )
      * )
      */
@@ -189,17 +187,14 @@ class UserController extends Controller
 
         $user->update($validatedData);
 
-        return $this->sendResponse(StatusEnum::SUCCESS, $user, 'User updated successfully');
+        return $this->sendResponse(StatusEnum::SUCCESS, $user, 'Utilisateur mis à jour avec succès');
     }
-
-
-
 
     /**
      * @OA\Delete(
      *     path="/api/v1/users/{id}",
      *     tags={"Users"},
-     *     summary="Delete a user",
+     *     summary="Supprimer un utilisateur",
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -208,7 +203,7 @@ class UserController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(type="object",
      *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
      *             @OA\Property(property="data", type="null"),
@@ -217,13 +212,13 @@ class UserController extends Controller
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="User not found"
+     *         description="Utilisateur non trouvé"
      *     )
      * )
      */
     public function destroy(User $user)
     {
         $user->delete();
-        return $this->sendResponse(StatusEnum::SUCCESS, null, 'User deleted successfully');
+        return $this->sendResponse(StatusEnum::SUCCESS, null, 'Utilisateur supprimé avec succès');
     }
 }

@@ -13,13 +13,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Spatie\QueryBuilder\QueryBuilder;
+use Carbon\Carbon;
 use Spatie\QueryBuilder\AllowedFilter;
 use Illuminate\Support\Facades\Log;
 
 /**
  * @OA\Tag(
  *     name="Clients",
- *     description="wane Endpoints of Client management"
+ *     description="Points de terminaison pour la gestion des clients"
  * )
  */
 class ClientController extends Controller
@@ -28,45 +29,45 @@ class ClientController extends Controller
      * @OA\Get(
      *     path="/wane/v1/clients",
      *     tags={"Clients"},
-     *     summary="Get list of clients with optional filters, sorting, and includes",
+     *     summary="Obtenir la liste des clients avec filtres, tri, et inclusions optionnels",
      *     @OA\Parameter(
      *         name="telephone",
      *         in="query",
-     *         description="Filter by telephone numbers (comma-separated)",
+     *         description="Filtrer par numéros de téléphone (séparés par des virgules)",
      *         required=false,
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
      *         name="sort",
      *         in="query",
-     *         description="Sort by field (prefix with - for descending order)",
+     *         description="Trier par champ (préfixer par - pour un ordre décroissant)",
      *         required=false,
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
      *         name="include",
      *         in="query",
-     *         description="Include related models",
+     *         description="Inclure les modèles associés",
      *         required=false,
      *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
      *         name="comptes",
      *         in="query",
-     *         description="Filter clients with or without accounts (oui|non)",
+     *         description="Filtrer les clients avec ou sans comptes (oui|non)",
      *         required=false,
      *         @OA\Schema(type="string", enum={"oui", "non"})
      *     ),
      *     @OA\Parameter(
      *         name="page",
      *         in="query",
-     *         description="Page number",
+     *         description="Numéro de la page",
      *         required=false,
      *         @OA\Schema(type="integer")
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(
      *             type="object",
      *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
@@ -100,19 +101,119 @@ class ClientController extends Controller
             ->allowedSorts(['telephone', 'surnom', 'created_at'])
             ->allowedIncludes(['user']);
 
-        // Apply pagination
+        // Appliquer la pagination
         $paginatedClients = $clients->paginate(15);
 
         return $this->sendResponse(
             StatusEnum::SUCCESS,
             new ClientCollection($paginatedClients),
-            'Clients retrieved successfully'
+            'Clients récupérés avec succès'
         );
     }
 
+    /**
+     * @OA\Get(
+     *     path="/wane/v1/clients/{id}/user",
+     *     tags={"Clients"},
+     *     summary="Afficher les informations du client avec le compte utilisateur associé",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Opération réussie",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 ref="#/components/schemas/Client"
+     *             ),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Client non trouvé"
+     *     )
+     * )
+     */
+    public function showUserInfo($id)
+    {
+        $client = Client::with('user')->findOrFail($id);
 
+        return $this->sendResponse(
+            StatusEnum::SUCCESS,
+            new ClientResource($client),
+            'Informations du client avec le compte utilisateur récupérées avec succès'
+        );
+    }
 
+/**
+ * @OA\Get(
+ *     path="/wane/v1/clients/{id}/dettes",
+ *     tags={"Clients"},
+ *     summary="Lister les dettes d'un client sans détails",
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Opération réussie",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
+ *             @OA\Property(
+ *                 property="data",
+ *                 type="array",
+ *                 @OA\Items(
+ *                     type="object",
+ *                     @OA\Property(property="id", type="integer"),
+ *                     @OA\Property(property="montant_total", type="number"),
+ *                     @OA\Property(property="date_echeance", type="string", format="date"),
+ *                     @OA\Property(property="statut", type="string")
+ *                 )
+ *             ),
+ *             @OA\Property(property="message", type="string")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Client non trouvé"
+ *     )
+ * )
+ */
+public function listDettes($id)
+{
+    // Récupérer le client et ses dettes associées
+    $client = Client::with('dettes')->findOrFail($id);
 
+    // Extraire les dettes du client
+    $dettes = $client->dettes->map(function($dette) {
+        // Vérifiez si date_echeance est une chaîne et convertissez-la en instance Carbon si nécessaire
+        $dateEcheance = $dette->date_echeance instanceof Carbon ? $dette->date_echeance : Carbon::parse($dette->date_echeance);
+
+        return [
+            'id' => $dette->id,
+            'montant_total' => $dette->montant_total,
+            'date_echeance' => $dateEcheance->format('Y-m-d'),
+            'statut' => $dette->statut
+        ];
+    });
+
+    return $this->sendResponse(
+        StatusEnum::SUCCESS,
+        $dettes,
+        'Dettes du client récupérées avec succès'
+    );
+}
 
 
 
@@ -120,7 +221,7 @@ class ClientController extends Controller
      * @OA\Get(
      *     path="/wane/v1/clients/{id}",
      *     tags={"Clients"},
-     *     summary="Get client information",
+     *     summary="Obtenir les informations d'un client",
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -129,7 +230,7 @@ class ClientController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Opération réussie",
      *         @OA\JsonContent(
      *             type="object",
      *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
@@ -139,41 +240,36 @@ class ClientController extends Controller
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Client not found"
+     *         description="Client non trouvé"
      *     )
      * )
      */
     public function show($id)
     {
-        $client = Client::with('user')->findOrFail($id);
-        return $this->sendResponse(StatusEnum::SUCCESS, new ClientResource($client), 'Client retrieved successfully');
+        $client = Client::findOrFail($id);
+        return $this->sendResponse(StatusEnum::SUCCESS, new ClientResource($client), 'Client récupéré avec succès');
     }
 
     /**
      * @OA\Post(
      *     path="/wane/v1/clients",
      *     tags={"Clients"},
-     *     summary="Create a new client with or without associated user",
+     *     summary="Créer un nouveau client avec ou sans utilisateur associé",
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
      *             required={"surnom", "telephone"},
-     *             @OA\Property(property="surnom", type="string", description="Unique nickname for the client"),
-     *             @OA\Property(property="telephone", type="string", description="Unique phone number for the client"),
-     *             @OA\Property(property="adresse", type="string", nullable=true, description="Client's address"),
-     *             @OA\Property(property="user", type="object", nullable=true,
-     *                 @OA\Property(property="prenom", type="string", description="User's first name"),
-     *                 @OA\Property(property="nom", type="string", description="User's last name"),
-     *                 @OA\Property(property="email", type="string", format="email", description="Unique email for the user"),
-     *                 @OA\Property(property="mot_de_passe", type="string", format="password", description="User's password (min 8 characters, mixed case, numbers, and symbols)"),
-     *                 @OA\Property(property="mot_de_passe_confirmation", type="string", format="password", description="Confirmation of the user's password"),
-     *                 @OA\Property(property="role", type="string", enum={"CLIENT"}, description="User's role")
+     *             @OA\Property(property="surnom", type="string", description="Surnom unique du client"),
+     *             @OA\Property(property="telephone", type="string", description="Numéro de téléphone du client"),
+     *             @OA\Property(property="user", type="object", required={"email", "password"},
+     *                 @OA\Property(property="email", type="string", description="Adresse e-mail de l'utilisateur"),
+     *                 @OA\Property(property="password", type="string", description="Mot de passe de l'utilisateur")
      *             )
      *         )
      *     ),
      *     @OA\Response(
      *         response=201,
-     *         description="Successful operation",
+     *         description="Client créé avec succès",
      *         @OA\JsonContent(
      *             type="object",
      *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
@@ -182,55 +278,40 @@ class ClientController extends Controller
      *         )
      *     ),
      *     @OA\Response(
-     *         response=422,
-     *         description="Validation error",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="status", type="string", enum={"ERROR"}),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         response=400,
+     *         description="Requête invalide"
      *     )
      * )
      */
     public function store(ClientStoreRequest $request)
     {
+        DB::beginTransaction();
+
         try {
-            $client = DB::transaction(function () use ($request) {
-                $clientData = $request->only(['surnom', 'telephone', 'adresse']);
-                $userId = null;
+            $client = Client::create($request->only(['surnom', 'telephone']));
+            if ($request->filled('user')) {
+                $user = User::create([
+                    'email' => $request->input('user.email'),
+                    'password' => Hash::make($request->input('user.password')),
+                ]);
+                $client->user()->associate($user);
+                $client->save();
+            }
+            DB::commit();
 
-                if ($request->has('user')) {
-                    $userData = $request->get('user');
-                    $userData['mot_de_passe'] = Hash::make($userData['mot_de_passe']);
-                    $user = User::create($userData);
-                    $userId = $user->id;
-                }
-
-                if ($userId) {
-                    $clientData['user_id'] = $userId;
-                }
-
-                $client = Client::create($clientData);
-                return $client->load('user');
-            });
-
-            return $this->sendResponse(
-                StatusEnum::SUCCESS,
-                new ClientResource($client),
-                'Client ' . ($request->has('user') ? 'and associated user ' : '') . 'created successfully'
-            );
+            return $this->sendResponse(StatusEnum::SUCCESS, new ClientResource($client), 'Client créé avec succès');
         } catch (\Exception $e) {
-            return $this->sendResponse(StatusEnum::ERROR, null, 'Error creating client: ' . $e->getMessage());
+            DB::rollBack();
+            Log::error('Erreur lors de la création du client: '.$e->getMessage());
+            return $this->sendResponse(StatusEnum::ERROR, null, 'Erreur lors de la création du client');
         }
     }
 
-
-
     /**
-     * @OA\Patch(
+     * @OA\Put(
      *     path="/wane/v1/clients/{id}",
      *     tags={"Clients"},
-     *     summary="Update an existing client",
+     *     summary="Mettre à jour les informations d'un client",
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -239,58 +320,53 @@ class ClientController extends Controller
      *     ),
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/Client")
+     *         @OA\JsonContent(
+     *             required={"surnom", "telephone"},
+     *             @OA\Property(property="surnom", type="string", description="Surnom unique du client"),
+     *             @OA\Property(property="telephone", type="string", description="Numéro de téléphone du client"),
+     *             @OA\Property(property="user", type="object",
+     *                 @OA\Property(property="email", type="string", description="Adresse e-mail de l'utilisateur"),
+     *                 @OA\Property(property="password", type="string", description="Mot de passe de l'utilisateur")
+     *             )
+     *         )
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Successful operation",
+     *         description="Client mis à jour avec succès",
      *         @OA\JsonContent(
      *             type="object",
      *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
      *             @OA\Property(property="data", ref="#/components/schemas/Client"),
      *             @OA\Property(property="message", type="string")
-         )
+     *         )
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Client not found"
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation error"
+     *         description="Client non trouvé"
      *     )
      * )
      */
-    public function update(ClientUpdateRequest $request, Client $client)
+    public function update(ClientUpdateRequest $request, $id)
     {
-        try {
-            DB::transaction(function () use ($request, $client) {
-                $client->update($request->only(['surnom', 'telephone', 'adresse']));
+        $client = Client::findOrFail($id);
+        $client->update($request->only(['surnom', 'telephone']));
 
-                if ($request->has('user')) {
-                    $userData = $request->input('user');
-                    if (isset($userData['mot_de_passe'])) {
-                        $userData['mot_de_passe'] = Hash::make($userData['mot_de_passe']);
-                    }
-                    $client->user()->updateOrCreate(
-                        ['id' => $client->user_id],
-                        $userData
-                    );
-                }
-            });
-
-            $client->load('user');
-            return $this->sendResponse(StatusEnum::SUCCESS, new ClientResource($client), 'Client updated successfully');
-        } catch (\Exception $e) {
-            return $this->sendResponse(StatusEnum::ERROR, null, 'Error updating client: ' . $e->getMessage());
+        if ($request->filled('user')) {
+            $user = $client->user;
+            $user->update([
+                'email' => $request->input('user.email'),
+                'password' => Hash::make($request->input('user.password')),
+            ]);
         }
+
+        return $this->sendResponse(StatusEnum::SUCCESS, new ClientResource($client), 'Client mis à jour avec succès');
     }
 
     /**
      * @OA\Delete(
      *     path="/wane/v1/clients/{id}",
      *     tags={"Clients"},
-     *     summary="Delete a client",
+     *     summary="Supprimer un client",
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -298,31 +374,20 @@ class ClientController extends Controller
      *         @OA\Schema(type="integer")
      *     ),
      *     @OA\Response(
-     *         response=200,
-     *         description="Successful operation",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="status", type="string", enum={"SUCCESS", "ERROR"}),
-     *             @OA\Property(property="data", type="null"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         response=204,
+     *         description="Client supprimé avec succès"
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Client not found"
+     *         description="Client non trouvé"
      *     )
      * )
      */
-    public function destroy(Client $client)
+    public function destroy($id)
     {
-        try {
-            DB::transaction(function () use ($client) {
-                // Si un utilisateur est associé, il sera automatiquement supprimé grâce à la contrainte de clé étrangère onDelete('cascade')
-                $client->delete();
-            });
-            return $this->sendResponse(StatusEnum::SUCCESS, null, 'Client deleted successfully');
-        } catch (\Exception $e) {
-            return $this->sendResponse(StatusEnum::ERROR, null, 'Error deleting client: ' . $e->getMessage());
-        }
+        $client = Client::findOrFail($id);
+        $client->delete();
+
+        return $this->sendResponse(StatusEnum::SUCCESS, null, 'Client supprimé avec succès');
     }
 }

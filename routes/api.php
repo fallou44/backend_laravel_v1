@@ -87,6 +87,8 @@ Route::middleware(['auth:api'])->group(function () {
     });
 });
 
+
+
 // Route de fallback pour les routes non définies
 Route::fallback(function () {
     return response()->json(['message' => 'Page non trouvée !'], 404);

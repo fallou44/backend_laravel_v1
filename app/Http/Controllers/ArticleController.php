@@ -333,13 +333,13 @@ class ArticleController extends Controller
         }
     }
 
-/**
+    /**
      * Met à jour la quantité de stock d'un seul article.
      *
      * Cette méthode met à jour la quantité de stock pour un seul article.
      *
      * @OA\Patch(
-     *     path="/api/v1/articles/{id}",
+     *     path="/api/v1/articles/{id}/stock",
      *     tags={"Articles"},
      *     summary="Mettre à jour la quantité de stock d'un seul article",
      *     @OA\Parameter(

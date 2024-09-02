@@ -9,9 +9,16 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Enums\StatusEnum;
 
 /**
- * @OA\Tag(
- *     name="Dettes",
- *     description="API Endpoints for managing debts"
+ * @OA\Schema(
+ *     schema="Dette",
+ *     required={"montant_total", "date_echeance", "statut", "client_id"},
+ *     @OA\Property(property="id", type="integer", readOnly=true),
+ *     @OA\Property(property="montant_total", type="number", format="float"),
+ *     @OA\Property(property="date_echeance", type="string", format="date"),
+ *     @OA\Property(property="statut", type="string"),
+ *     @OA\Property(property="client_id", type="integer"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", readOnly=true),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", readOnly=true),
  * )
  */
 class DetteController extends Controller

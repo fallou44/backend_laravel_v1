@@ -7,9 +7,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
 
-/**
- * @OA\Info(title="API Authentification", version="1.0.0")
- */
 class AuthController extends Controller
 {
     /**

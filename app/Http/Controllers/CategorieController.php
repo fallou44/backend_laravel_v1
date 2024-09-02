@@ -9,9 +9,14 @@ use App\Enums\StatusEnum;
 use Illuminate\Http\Response;
 
 /**
- * @OA\Tag(
- *     name="Catégories",
- *     description="Points de terminaison API pour la gestion des catégories"
+ * @OA\Schema(
+ *     schema="Categorie",
+ *     required={"nom"},
+ *     @OA\Property(property="id", type="integer", readOnly=true, example=1),
+ *     @OA\Property(property="nom", type="string", maxLength=255, example="Électronique"),
+ *     @OA\Property(property="description", type="string", nullable=true, example="Produits électroniques et accessoires"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", readOnly=true),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", readOnly=true)
  * )
  */
 class CategorieController extends Controller

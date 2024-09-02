@@ -12,21 +12,1495 @@
         {
             "url": "http://my-default-host.com",
             "description": "API Server"
+        },
+        {
+            "url": "/api"
         }
     ],
     "paths": {
-        "/api/v1/clients": {
+        "/api/v1/articles": {
+            "get": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "Obtenir la liste des articles",
+                "description": "Affiche une liste paginée des articles.\n\nCette méthode récupère une liste paginée d'articles, avec un filtre optionnel pour la disponibilité.",
+                "operationId": "2bb6d18420d6929d1d4175ace6521d21",
+                "parameters": [
+                    {
+                        "name": "disponible",
+                        "in": "query",
+                        "description": "Filtrer les articles par disponibilité",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "oui",
+                                "non"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Opération réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCES",
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Article"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "null"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "Créer un nouvel article",
+                "description": "Enregistre un nouvel article dans la base de données.\n\nCette méthode valide les données d'entrée et crée un nouvel article dans la base de données.",
+                "operationId": "0ea2309d3197efec2dbee20f8ba49ddc",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Article"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Opération réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCES",
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "$ref": "#/components/schemas/Article"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreur de validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "object"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "null"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/articles/{id}": {
+            "get": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "Obtenir les informations d'un article",
+                "description": "Affiche les détails d'un article spécifique.\n\nCette méthode récupère et renvoie les détails d'un article spécifique.",
+                "operationId": "bf9724a6309b55de3ed51502e1a15814",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Opération réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCES",
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "$ref": "#/components/schemas/Article"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Article non trouvé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "null"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "null"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "Supprimer un article",
+                "description": "Supprime un article.\n\nCette méthode supprime un article spécifique.",
+                "operationId": "51d3b08d51f0416b640aa7728b78bdb1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Opération réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCES",
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "null"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Article non trouvé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "null"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "Mettre à jour un article existant",
+                "description": "Met à jour un article existant.\n\nCette méthode met à jour les informations d'un article existant.",
+                "operationId": "60e61bfb5a544ae408cbd224f79f0c9c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Article"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Opération réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCES",
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "$ref": "#/components/schemas/Article"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Article non trouvé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "null"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreur de validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "object"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/articles/stock": {
+            "post": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "Mettre à jour le stock de plusieurs articles",
+                "description": "Met à jour le stock de plusieurs articles.\n\nCette méthode met à jour la quantité de stock pour plusieurs articles dans une seule transaction.",
+                "operationId": "bebeaf27d5be355373f405fd37832575",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "articles": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "quantite": {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Opération réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCES"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "properties": {
+                                                "mises_a_jour_reussies": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "mises_a_jour_echouees": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreur de validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "object"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "null"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/articles/libelle": {
+            "post": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "Rechercher des articles par libellé (insensible à la casse)",
+                "description": "Recherche des articles par libellé (insensible à la casse).\n\nCette méthode effectue une recherche insensible à la casse des articles basée sur leur libellé.",
+                "operationId": "4f8747ee731b08c3ca9bcdeb6aca671f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "libelle": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Opération réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCES",
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Article"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreur de validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "object"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "null"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/articles/{id}/stock": {
+            "patch": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "Mettre à jour la quantité de stock d'un seul article",
+                "description": "Met à jour la quantité de stock d'un seul article.\n\nCette méthode met à jour la quantité de stock pour un seul article.",
+                "operationId": "59e906694cb57d7fb134887f62713981",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "quantite": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Opération réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCES"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "$ref": "#/components/schemas/Article"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Article non trouvé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "null"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreur de validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "object"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/articles/trashed": {
+            "get": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "Obtenir la liste des articles supprimés",
+                "description": "Récupère la liste des articles supprimés.\n\nCette méthode récupère une liste paginée des articles qui ont été supprimés (soft delete).",
+                "operationId": "b6801158e258cdc4b386e224ba169cae",
+                "responses": {
+                    "200": {
+                        "description": "Opération réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCES",
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Article"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur serveur",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "null"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/articles/{id}/restore": {
+            "post": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "Restaurer un article supprimé",
+                "description": "Restaure un article supprimé.\n\nCette méthode restaure un article qui a été précédemment supprimé (soft delete).",
+                "operationId": "ccca9e88a02e0a08570ed71d9e600690",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Opération réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCES",
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "$ref": "#/components/schemas/Article"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Article non trouvé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "null"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/articles/{id}/force": {
+            "delete": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "Supprimer définitivement un article",
+                "description": "Supprime définitivement un article.\n\nCette méthode supprime définitivement un article de la base de données.",
+                "operationId": "306f712c01e77fbfe3494b63b648453a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Opération réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCES",
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "null"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Article non trouvé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "statut": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERREUR"
+                                            ]
+                                        },
+                                        "donnees": {
+                                            "type": "null"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Authentifie un utilisateur et retourne un jeton d'accès et un jeton de rafraîchissement.",
+                "operationId": "a3b306d14572d1f4bd6c064b3233e7b8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "mot_de_passe"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "user@example.com"
+                                    },
+                                    "mot_de_passe": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Réponse réussie avec les jetons",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string",
+                                            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                                        },
+                                        "refresh_token": {
+                                            "type": "string",
+                                            "example": "d2ViOGQyOGY0Y2FlZTc2MGJjMzk5YzY4NTczZDk5OTY="
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        },
+                                        "expires_in": {
+                                            "type": "integer",
+                                            "example": 300
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Informations de connexion incorrectes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Les informations de connexion sont incorrectes."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/refresh": {
+            "post": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Rafraîchit le jeton d'accès avec un jeton de rafraîchissement.",
+                "operationId": "2c27d311a2876560fcb5a754b556cdc5",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "refresh_token"
+                                ],
+                                "properties": {
+                                    "refresh_token": {
+                                        "type": "string",
+                                        "example": "d2ViOGQyOGY0Y2FlZTc2MGJjMzk5YzY4NTczZDk5OTY="
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Réponse réussie avec le nouveau jeton d'accès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string",
+                                            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        },
+                                        "expires_in": {
+                                            "type": "integer",
+                                            "example": 300
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Jeton de rafraîchissement invalide",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Jeton de rafraîchissement invalide."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Déconnecte un utilisateur en révoquant ses jetons.",
+                "operationId": "fe8f3429cd6979b3b4517e186505f9f9",
+                "responses": {
+                    "200": {
+                        "description": "Déconnexion réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Déconnexion réussie."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Utilisateur non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Utilisateur non authentifié."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/categories": {
+            "get": {
+                "tags": [
+                    "Catégories"
+                ],
+                "summary": "Obtenir la liste des catégories",
+                "operationId": "94e034e2bdb507c5e970d49c34fdc846",
+                "responses": {
+                    "200": {
+                        "description": "Opération réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS",
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Categorie"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Catégories"
+                ],
+                "summary": "Créer une nouvelle catégorie",
+                "operationId": "c7ed1b35eb40d77126f20ff47615f09a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Categorie"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Opération réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS",
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Categorie"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreur de validation"
+                    }
+                }
+            }
+        },
+        "/api/v1/categories/{id}": {
+            "get": {
+                "tags": [
+                    "Catégories"
+                ],
+                "summary": "Obtenir les informations d'une catégorie",
+                "operationId": "46c5c3954df07301e16ee08eaf957b86",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Opération réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS",
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Categorie"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Catégorie non trouvée"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Catégories"
+                ],
+                "summary": "Supprimer une catégorie",
+                "operationId": "7b13d3ed60e6e7337941a54b21084983",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Opération réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS",
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "data": {
+                                            "type": "null"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Catégorie non trouvée"
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Catégories"
+                ],
+                "summary": "Mettre à jour une catégorie existante",
+                "operationId": "d8a5823058e769ba7c26d6afd746f73e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Categorie"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Opération réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS",
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Categorie"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Catégorie non trouvée"
+                    },
+                    "422": {
+                        "description": "Erreur de validation"
+                    }
+                }
+            }
+        },
+        "/wane/v1/clients": {
             "get": {
                 "tags": [
                     "Clients"
                 ],
-                "summary": "Get list of clients",
-                "operationId": "b302d909c0e1166a2c033bfd17ed030f",
+                "summary": "Obtenir la liste des clients",
+                "description": "Récupère une liste paginée des clients avec possibilité de filtrage, tri et inclusion de relations",
+                "operationId": "9c9f42dc6d4f7b4ecd4c5d9c47b84db0",
                 "parameters": [
+                    {
+                        "name": "telephone",
+                        "in": "query",
+                        "description": "Filtrer par numéros de téléphone (séparés par des virgules)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "Trier par champ (préfixer par - pour un ordre décroissant)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "description": "Inclure les relations (ex: user)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "comptes",
+                        "in": "query",
+                        "description": "Filtrer les clients avec ou sans comptes (oui|non)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "oui",
+                                "non"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "active",
+                        "in": "query",
+                        "description": "Filtrer les clients avec des comptes actifs ou inactifs (oui|non)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "oui",
+                                "non"
+                            ]
+                        }
+                    },
                     {
                         "name": "page",
                         "in": "query",
-                        "description": "Page number",
+                        "description": "Numéro de la page pour la pagination",
                         "required": false,
                         "schema": {
                             "type": "integer"
@@ -35,13 +1509,17 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
+                        "description": "Liste des clients récupérée avec succès",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
                                         "status": {
-                                            "type": "integer"
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS",
+                                                "ERROR"
+                                            ]
                                         },
                                         "data": {
                                             "properties": {
@@ -68,6 +1546,9 @@
                                 }
                             }
                         }
+                    },
+                    "500": {
+                        "description": "Erreur serveur"
                     }
                 }
             },
@@ -75,27 +1556,63 @@
                 "tags": [
                     "Clients"
                 ],
-                "summary": "Create a new client",
-                "operationId": "72a51329a9c85d73e15e640b5b53e470",
+                "summary": "Créer un nouveau client",
+                "description": "Crée un nouveau client avec ou sans utilisateur associé",
+                "operationId": "454227f9ddb6787a4e48909715acbb03",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Client"
+                                "required": [
+                                    "surnom",
+                                    "telephone"
+                                ],
+                                "properties": {
+                                    "surnom": {
+                                        "description": "Surnom unique du client",
+                                        "type": "string"
+                                    },
+                                    "telephone": {
+                                        "description": "Numéro de téléphone du client",
+                                        "type": "string"
+                                    },
+                                    "user": {
+                                        "required": [
+                                            "email",
+                                            "password"
+                                        ],
+                                        "properties": {
+                                            "email": {
+                                                "description": "Adresse e-mail de l'utilisateur",
+                                                "type": "string"
+                                            },
+                                            "password": {
+                                                "description": "Mot de passe de l'utilisateur",
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
                             }
                         }
                     }
                 },
                 "responses": {
                     "201": {
-                        "description": "Successful operation",
+                        "description": "Client créé avec succès",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
                                         "status": {
-                                            "type": "integer"
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS",
+                                                "ERROR"
+                                            ]
                                         },
                                         "data": {
                                             "$ref": "#/components/schemas/Client"
@@ -109,23 +1626,28 @@
                             }
                         }
                     },
-                    "422": {
-                        "description": "Validation error"
+                    "400": {
+                        "description": "Données invalides"
+                    },
+                    "500": {
+                        "description": "Erreur serveur"
                     }
                 }
             }
         },
-        "/api/v1/clients/{id}": {
+        "/wane/v1/clients/{id}/user": {
             "get": {
                 "tags": [
                     "Clients"
                 ],
-                "summary": "Get client information",
-                "operationId": "0a628c8462ccec3d2798255b1015c22c",
+                "summary": "Afficher les informations du client avec le compte utilisateur associé",
+                "description": "Récupère les informations détaillées d'un client, y compris son compte utilisateur associé",
+                "operationId": "83aec746d4979c36dbebe28924686c70",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID du client",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -134,13 +1656,17 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
+                        "description": "Informations du client récupérées avec succès",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
                                         "status": {
-                                            "type": "integer"
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS",
+                                                "ERROR"
+                                            ]
                                         },
                                         "data": {
                                             "$ref": "#/components/schemas/Client"
@@ -155,131 +1681,66 @@
                         }
                     },
                     "404": {
-                        "description": "Client not found"
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "Clients"
-                ],
-                "summary": "Delete a client",
-                "operationId": "edeb32faf4e5856e533c5dc13c18e780",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "integer"
-                                        },
-                                        "data": {
-                                            "type": "null"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
+                        "description": "Client non trouvé"
                     },
-                    "404": {
-                        "description": "Client not found"
-                    }
-                }
-            },
-            "patch": {
-                "tags": [
-                    "Clients"
-                ],
-                "summary": "Update an existing client",
-                "operationId": "48c94e9defd0adcdf041d67ff1c78169",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Client"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "integer"
-                                        },
-                                        "data": {
-                                            "$ref": "#/components/schemas/Client"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Client not found"
-                    },
-                    "422": {
-                        "description": "Validation error"
+                    "500": {
+                        "description": "Erreur serveur"
                     }
                 }
             }
         },
-        "/api/v1/users": {
+        "/wane/v1/clients/{id}/dettes": {
             "get": {
                 "tags": [
-                    "Users"
+                    "Clients"
                 ],
-                "summary": "Get list of users",
-                "operationId": "3ab81e3f9b24b4f36ab08d72349ac632",
+                "summary": "Lister les dettes d'un client",
+                "description": "Récupère la liste des dettes d'un client spécifique sans détails",
+                "operationId": "4db24812c501d63270bd2c9aa622ba54",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID du client",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
+                        "description": "Liste des dettes récupérée avec succès",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
                                         "status": {
-                                            "type": "integer"
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS",
+                                                "ERROR"
+                                            ]
                                         },
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/components/schemas/User"
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "montant_total": {
+                                                        "type": "number"
+                                                    },
+                                                    "date_echeance": {
+                                                        "type": "string",
+                                                        "format": "date"
+                                                    },
+                                                    "statut": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
                                             }
                                         },
                                         "message": {
@@ -290,64 +1751,29 @@
                                 }
                             }
                         }
-                    }
-                }
-            },
-            "post": {
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Create a new user",
-                "operationId": "ba548b97148bb5c0d8cab3bc3f128bfd",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/User"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "integer"
-                                        },
-                                        "data": {
-                                            "$ref": "#/components/schemas/User"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
                     },
-                    "422": {
-                        "description": "Validation error"
+                    "404": {
+                        "description": "Client non trouvé"
+                    },
+                    "500": {
+                        "description": "Erreur serveur"
                     }
                 }
             }
         },
-        "/api/v1/users/{id}": {
+        "/wane/v1/clients/{id}": {
             "get": {
                 "tags": [
-                    "Users"
+                    "Clients"
                 ],
-                "summary": "Get user information",
-                "operationId": "daaf7a6169ee9348c3fddb07778598ff",
+                "summary": "Obtenir les informations d'un client",
+                "description": "Récupère les informations détaillées d'un client spécifique",
+                "operationId": "fda5ac161b1efe5aaaf48b2ae5b57d56",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID du client",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -356,16 +1782,20 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
+                        "description": "Informations du client récupérées avec succès",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
                                         "status": {
-                                            "type": "integer"
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS",
+                                                "ERROR"
+                                            ]
                                         },
                                         "data": {
-                                            "$ref": "#/components/schemas/User"
+                                            "$ref": "#/components/schemas/Client"
                                         },
                                         "message": {
                                             "type": "string"
@@ -377,20 +1807,117 @@
                         }
                     },
                     "404": {
-                        "description": "User not found"
+                        "description": "Client non trouvé"
+                    },
+                    "500": {
+                        "description": "Erreur serveur"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Clients"
+                ],
+                "summary": "Mettre à jour un client",
+                "description": "Met à jour les informations d'un client existant et son utilisateur associé si fourni",
+                "operationId": "e53b63da8d7d84656a0dc9c9d1632b0e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID du client à mettre à jour",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "surnom",
+                                    "telephone"
+                                ],
+                                "properties": {
+                                    "surnom": {
+                                        "description": "Nouveau surnom du client",
+                                        "type": "string"
+                                    },
+                                    "telephone": {
+                                        "description": "Nouveau numéro de téléphone du client",
+                                        "type": "string"
+                                    },
+                                    "user": {
+                                        "properties": {
+                                            "email": {
+                                                "description": "Nouvelle adresse e-mail de l'utilisateur",
+                                                "type": "string"
+                                            },
+                                            "password": {
+                                                "description": "Nouveau mot de passe de l'utilisateur",
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Client mis à jour avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS",
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Client"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Client non trouvé"
+                    },
+                    "422": {
+                        "description": "Données invalides"
+                    },
+                    "500": {
+                        "description": "Erreur serveur"
                     }
                 }
             },
             "delete": {
                 "tags": [
-                    "Users"
+                    "Clients"
                 ],
-                "summary": "Delete a user",
-                "operationId": "c30c64b8b7730b65c7714c9af4a6f5fa",
+                "summary": "Supprimer un client",
+                "description": "Supprime un client existant et son utilisateur associé",
+                "operationId": "ec5479dd20ac1d8f55be247634a80196",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID du client à supprimer",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -399,13 +1926,16 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
+                        "description": "Client supprimé avec succès",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
                                         "status": {
-                                            "type": "integer"
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS"
+                                            ]
                                         },
                                         "data": {
                                             "type": "null"
@@ -420,20 +1950,285 @@
                         }
                     },
                     "404": {
-                        "description": "User not found"
+                        "description": "Client non trouvé"
+                    },
+                    "500": {
+                        "description": "Erreur serveur"
+                    }
+                }
+            }
+        },
+        "/api/v1/dettes": {
+            "get": {
+                "tags": [
+                    "Dettes"
+                ],
+                "summary": "Get list of debts",
+                "description": "Retrieve a paginated list of debts with their associated clients and articles.",
+                "operationId": "221e325d8bfb6aa51a5e3e2d55903f6b",
+                "responses": {
+                    "200": {
+                        "description": "Debts retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS"
+                                            ]
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer"
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Dette"
+                                                    }
+                                                },
+                                                "first_page_url": {
+                                                    "type": "string"
+                                                },
+                                                "from": {
+                                                    "type": "integer"
+                                                },
+                                                "last_page": {
+                                                    "type": "integer"
+                                                },
+                                                "last_page_url": {
+                                                    "type": "string"
+                                                },
+                                                "next_page_url": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                },
+                                                "path": {
+                                                    "type": "string"
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "prev_page_url": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                },
+                                                "to": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Dettes"
+                ],
+                "summary": "Create a new debt",
+                "description": "Create a new debt record and associate it with the given client and articles.",
+                "operationId": "2b63b8e510eddacc9fb4b66d096fc357",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Dette"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Debt created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS"
+                                            ]
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Dette"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/dettes/{id}": {
+            "get": {
+                "tags": [
+                    "Dettes"
+                ],
+                "summary": "Get debt details",
+                "description": "Retrieve the details of a specific debt by its ID, including client and associated articles and payments.",
+                "operationId": "0e84c3d33fbb4855fc03cdc7c709a6d7",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the debt to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Debt retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS"
+                                            ]
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Dette"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Debt not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Dettes"
+                ],
+                "summary": "Delete a debt",
+                "description": "Delete a specific debt by its ID.",
+                "operationId": "0abe1f9a68d383d4ed077b50044837f5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the debt to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Debt deleted successfully"
+                    },
+                    "404": {
+                        "description": "Debt not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             },
             "patch": {
                 "tags": [
-                    "Users"
+                    "Dettes"
                 ],
-                "summary": "Update an existing user",
-                "operationId": "12801392b8a73f66c3932bc46754d201",
+                "summary": "Update a debt",
+                "description": "Update the details of a specific debt by its ID.",
+                "operationId": "f000443bf0ee241c41389e1ff67a462b",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "ID of the debt to update",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -445,20 +2240,994 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/User"
+                                "$ref": "#/components/schemas/Dette"
                             }
                         }
                     }
                 },
                 "responses": {
                     "200": {
-                        "description": "Successful operation",
+                        "description": "Debt updated successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
                                         "status": {
-                                            "type": "integer"
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS"
+                                            ]
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Dette"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Debt not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/paiements": {
+            "get": {
+                "tags": [
+                    "Paiements"
+                ],
+                "summary": "Get list of payments",
+                "description": "Retrieve a paginated list of payments with their associated debts.",
+                "operationId": "b4a2dd35d2d610e8c271b82a3c68465a",
+                "responses": {
+                    "200": {
+                        "description": "Payments retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS"
+                                            ]
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer"
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Paiement"
+                                                    }
+                                                },
+                                                "first_page_url": {
+                                                    "type": "string"
+                                                },
+                                                "from": {
+                                                    "type": "integer"
+                                                },
+                                                "last_page": {
+                                                    "type": "integer"
+                                                },
+                                                "last_page_url": {
+                                                    "type": "string"
+                                                },
+                                                "next_page_url": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                },
+                                                "path": {
+                                                    "type": "string"
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "prev_page_url": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                },
+                                                "to": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Paiements"
+                ],
+                "summary": "Create a new payment",
+                "description": "Create a new payment record and update the associated debt status if fully paid.",
+                "operationId": "1d5130a08c1589901540e3af1afd4a28",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Paiement"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Payment created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS"
+                                            ]
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Paiement"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/paiements/{id}": {
+            "get": {
+                "tags": [
+                    "Paiements"
+                ],
+                "summary": "Get payment details",
+                "description": "Retrieve the details of a specific payment by its ID.",
+                "operationId": "2af3dfc99c2c6fbbadd36db907664adf",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the payment to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS"
+                                            ]
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Paiement"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Payment not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Paiements"
+                ],
+                "summary": "Delete a payment",
+                "description": "Delete a specific payment by its ID.",
+                "operationId": "0dea77668c4837a0dd9b472bf8430e80",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the payment to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Payment deleted successfully"
+                    },
+                    "404": {
+                        "description": "Payment not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Paiements"
+                ],
+                "summary": "Update a payment",
+                "description": "Update the details of a specific payment by its ID.",
+                "operationId": "16394c034bb50f15f9fb4014ccb20c7c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the payment to update",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Paiement"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Payment updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS"
+                                            ]
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Paiement"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Payment not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/promos": {
+            "get": {
+                "tags": [
+                    "Promos"
+                ],
+                "summary": "Get list of promos",
+                "description": "Retrieve a paginated list of all promos.",
+                "operationId": "1a7cf286618f8b2e494fa9375daceb19",
+                "responses": {
+                    "200": {
+                        "description": "Promos retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS"
+                                            ]
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer"
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Promo"
+                                                    }
+                                                },
+                                                "first_page_url": {
+                                                    "type": "string"
+                                                },
+                                                "from": {
+                                                    "type": "integer"
+                                                },
+                                                "last_page": {
+                                                    "type": "integer"
+                                                },
+                                                "last_page_url": {
+                                                    "type": "string"
+                                                },
+                                                "next_page_url": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                },
+                                                "path": {
+                                                    "type": "string"
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "prev_page_url": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                },
+                                                "to": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Promos"
+                ],
+                "summary": "Create a new promo",
+                "description": "Create a new promo and return the created promo.",
+                "operationId": "45da8fdd5c617b3255fc01327ccc6e4a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Promo"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Promo created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS"
+                                            ]
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Promo"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/promos/{id}": {
+            "get": {
+                "tags": [
+                    "Promos"
+                ],
+                "summary": "Get promo information",
+                "description": "Retrieve the details of a specific promo by its ID.",
+                "operationId": "9a239651e0d7293ec567a3b7b06f8224",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the promo to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Promo retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS"
+                                            ]
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Promo"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Promo not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Promos"
+                ],
+                "summary": "Delete a promo",
+                "description": "Delete a specific promo by its ID.",
+                "operationId": "5d08429294af941b0b3331738890d4bf",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the promo to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Promo deleted successfully"
+                    },
+                    "404": {
+                        "description": "Promo not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Promos"
+                ],
+                "summary": "Update an existing promo",
+                "description": "Update the details of a specific promo by its ID.",
+                "operationId": "d0c8e99732d222d686c70e94e6f96419",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the promo to update",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Promo"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Promo updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS"
+                                            ]
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Promo"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Promo not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Obtenir la liste des utilisateurs avec des filtres optionnels",
+                "description": "Récupère une liste paginée des utilisateurs avec possibilité de filtrer par rôle et statut actif",
+                "operationId": "3ab81e3f9b24b4f36ab08d72349ac632",
+                "parameters": [
+                    {
+                        "name": "role",
+                        "in": "query",
+                        "description": "Filtre les utilisateurs par rôle",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "active",
+                        "in": "query",
+                        "description": "Filtre les utilisateurs par statut actif",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "oui",
+                                "non"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Nombre d'éléments par page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste des utilisateurs récupérée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS",
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/User"
+                                                    }
+                                                },
+                                                "current_page": {
+                                                    "type": "integer"
+                                                },
+                                                "last_page": {
+                                                    "type": "integer"
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Créer un nouvel utilisateur",
+                "description": "Crée un nouvel utilisateur avec les informations fournies",
+                "operationId": "ba548b97148bb5c0d8cab3bc3f128bfd",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Utilisateur créé avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS",
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/User"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreur de validation des données",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/{id}": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Obtenir les informations d'un utilisateur spécifique",
+                "description": "Récupère les détails d'un utilisateur en fonction de son ID",
+                "operationId": "daaf7a6169ee9348c3fddb07778598ff",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de l'utilisateur à récupérer",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Informations de l'utilisateur récupérées avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS",
+                                                "ERROR"
+                                            ]
                                         },
                                         "data": {
                                             "$ref": "#/components/schemas/User"
@@ -473,10 +3242,169 @@
                         }
                     },
                     "404": {
-                        "description": "User not found"
+                        "description": "Utilisateur non trouvé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Mettre à jour les informations d'un utilisateur",
+                "description": "Met à jour un utilisateur existant avec les nouvelles informations fournies",
+                "operationId": "59e98fba99e974815e27979dd58e2175",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de l'utilisateur à mettre à jour",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Utilisateur mis à jour avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "SUCCESS",
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/User"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Utilisateur non trouvé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "422": {
-                        "description": "Validation error"
+                        "description": "Erreur de validation des données",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Supprimer un utilisateur",
+                "description": "Supprime un utilisateur existant en fonction de son ID",
+                "operationId": "c30c64b8b7730b65c7714c9af4a6f5fa",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de l'utilisateur à supprimer",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Utilisateur supprimé avec succès"
+                    },
+                    "404": {
+                        "description": "Utilisateur non trouvé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ERROR"
+                                            ]
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -484,6 +3412,267 @@
     },
     "components": {
         "schemas": {
+            "Categorie": {
+                "required": [
+                    "nom"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "example": 1
+                    },
+                    "nom": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "Électronique"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Produits électroniques et accessoires",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "type": "object"
+            },
+            "Dette": {
+                "required": [
+                    "montant_total",
+                    "date_echeance",
+                    "statut",
+                    "client_id"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "montant_total": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "date_echeance": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "statut": {
+                        "type": "string"
+                    },
+                    "client_id": {
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "type": "object"
+            },
+            "Paiement": {
+                "required": [
+                    "dette_id",
+                    "montant",
+                    "date_paiement",
+                    "mode_paiement"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "dette_id": {
+                        "type": "integer"
+                    },
+                    "montant": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "date_paiement": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "mode_paiement": {
+                        "type": "string"
+                    },
+                    "commentaire": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "type": "object"
+            },
+            "Promo": {
+                "required": [
+                    "nom",
+                    "pourcentage",
+                    "date_debut",
+                    "date_fin"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "nom": {
+                        "type": "string"
+                    },
+                    "pourcentage": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "date_debut": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "date_fin": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "required": [
+                    "name",
+                    "email",
+                    "password",
+                    "role"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 255
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "maxLength": 255,
+                        "writeOnly": true
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "admin",
+                            "user"
+                        ]
+                    },
+                    "etat": {
+                        "type": "boolean"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "type": "object"
+            },
+            "Article": {
+                "required": [
+                    "libele",
+                    "prix_unitaire",
+                    "quantite",
+                    "categorie_id"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "readOnly": true
+                    },
+                    "libele": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "prix_unitaire": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "quantite": {
+                        "type": "integer"
+                    },
+                    "prix_details": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "categorie_id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "promo_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "deleted_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
             "Client": {
                 "required": [
                     "surnom",
@@ -525,74 +3714,41 @@
                     }
                 },
                 "type": "object"
-            },
-            "User": {
-                "required": [
-                    "nom",
-                    "prenom",
-                    "email",
-                    "mot_de_passe",
-                    "role"
-                ],
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "format": "int64",
-                        "readOnly": true
-                    },
-                    "nom": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "prenom": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "email": {
-                        "type": "string",
-                        "format": "email",
-                        "maxLength": 255
-                    },
-                    "mot_de_passe": {
-                        "type": "string",
-                        "format": "password",
-                        "writeOnly": true
-                    },
-                    "role": {
-                        "type": "string",
-                        "enum": [
-                            "admin",
-                            "user"
-                        ]
-                    },
-                    "email_verified_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "nullable": true
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true
-                    }
-                },
-                "type": "object"
             }
         }
     },
     "tags": [
         {
+            "name": "Articles",
+            "description": "Points d'API pour la gestion des articles"
+        },
+        {
             "name": "Clients",
-            "description": "API Endpoints of Client management"
+            "description": "Points de terminaison pour la gestion des clients"
+        },
+        {
+            "name": "Authentification",
+            "description": "Authentification"
+        },
+        {
+            "name": "Catégories",
+            "description": "Catégories"
+        },
+        {
+            "name": "Dettes",
+            "description": "Dettes"
+        },
+        {
+            "name": "Paiements",
+            "description": "Paiements"
+        },
+        {
+            "name": "Promos",
+            "description": "Promos"
         },
         {
             "name": "Users",
-            "description": "API Endpoints of User management"
+            "description": "Users"
         }
     ]
 }

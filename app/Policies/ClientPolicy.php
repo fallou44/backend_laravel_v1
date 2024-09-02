@@ -21,11 +21,17 @@ class ClientPolicy
         return $user->id === $client->user_id || in_array($user->role, ['ADMIN', 'BOUTIQUIER']);
     }
 
-    public function create(User $user)
+    public function create(User $user, $roleToCreate)
     {
-        // Seuls les ADMIN peuvent créer un client
-        return $user->role === 'ADMIN' || $user->role === 'BOUTIQUIER';
+        // Seuls les ADMIN peuvent créer des comptes avec des rôles autres que CLIENT
+        if ($user->role === 'ADMIN') {
+            return true;
+        }
+
+        // Les BOUTIQUIERS peuvent uniquement créer des comptes de type CLIENT
+        return $user->role === 'BOUTIQUIER' && $roleToCreate === 'CLIENT';
     }
+
 
     public function update(User $user, Client $client)
     {

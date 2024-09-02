@@ -97,6 +97,8 @@ class ClientController extends Controller
      */
     public function index(Request $request)
     {
+
+        $this->authorize('view', Client::class);
         try {
             $this->authorize('viewAny', Client::class);
 
@@ -164,6 +166,8 @@ class ClientController extends Controller
      */
     public function showUserInfo($id)
     {
+
+        $this->authorize('view', Client::class);
         try {
             $client = Client::with('user')->findOrFail($id);
 
@@ -225,6 +229,7 @@ class ClientController extends Controller
      */
     public function listDettes($id)
     {
+        $this->authorize('view', Client::class);
         try {
             $client = Client::with('dettes')->findOrFail($id);
 
@@ -287,6 +292,7 @@ class ClientController extends Controller
      */
     public function show($id)
     {
+        $this->authorize('view', Client::class);
         try {
             $client = Client::findOrFail($id);
             return $this->sendResponse(StatusEnum::SUCCESS, new ClientResource($client), 'Client récupéré avec succès');
@@ -338,6 +344,14 @@ class ClientController extends Controller
      */
     public function store(ClientStoreRequest $request)
     {
+        $currentUser = auth()->user(); // Récupérer l'utilisateur actuellement connecté
+        $roleToCreate = $request->input('user.role', 'CLIENT'); // Récupérer le rôle à créer (défaut à 'CLIENT')
+
+        // Vérifiez si l'utilisateur a la permission de créer ce rôle
+        if (!$this->create($currentUser, $roleToCreate)) {
+            return $this->sendResponse(StatusEnum::ERROR, null, 'Vous n\'avez pas la permission de créer ce rôle', 403);
+        }
+
         DB::beginTransaction();
 
         try {
@@ -345,8 +359,8 @@ class ClientController extends Controller
             if ($request->filled('user')) {
                 $user = User::create([
                     'email' => $request->input('user.email'),
-
                     'password' => Hash::make($request->input('user.password')),
+                    'role' => $roleToCreate, // Assignez le rôle à l'utilisateur
                 ]);
                 $client->user()->associate($user);
                 $client->save();
@@ -413,6 +427,7 @@ class ClientController extends Controller
      */
     public function update(ClientUpdateRequest $request, $id)
     {
+        $this->authorize('update', Client::class);
         DB::beginTransaction();
 
         try {
@@ -480,6 +495,7 @@ class ClientController extends Controller
      */
     public function destroy($id)
     {
+        $this->authorize('delete', Client::class);
         DB::beginTransaction();
 
         try {

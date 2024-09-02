@@ -10,9 +10,17 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Enums\StatusEnum;
 
 /**
- * @OA\Tag(
- *     name="Paiements",
- *     description="API Endpoints for managing payments"
+ * @OA\Schema(
+ *     schema="Paiement",
+ *     required={"dette_id", "montant", "date_paiement", "mode_paiement"},
+ *     @OA\Property(property="id", type="integer", readOnly=true),
+ *     @OA\Property(property="dette_id", type="integer"),
+ *     @OA\Property(property="montant", type="number", format="float"),
+ *     @OA\Property(property="date_paiement", type="string", format="date"),
+ *     @OA\Property(property="mode_paiement", type="string"),
+ *     @OA\Property(property="commentaire", type="string", nullable=true),
+ *     @OA\Property(property="created_at", type="string", format="date-time", readOnly=true),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", readOnly=true),
  * )
  */
 class PaiementController extends Controller

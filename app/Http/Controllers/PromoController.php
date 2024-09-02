@@ -11,9 +11,16 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 
 /**
- * @OA\Tag(
- *     name="Promos",
- *     description="API Endpoints of Promo management"
+ * @OA\Schema(
+ *     schema="Promo",
+ *     required={"nom", "pourcentage", "date_debut", "date_fin"},
+ *     @OA\Property(property="id", type="integer", readOnly=true),
+ *     @OA\Property(property="nom", type="string"),
+ *     @OA\Property(property="pourcentage", type="number", format="float"),
+ *     @OA\Property(property="date_debut", type="string", format="date"),
+ *     @OA\Property(property="date_fin", type="string", format="date"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", readOnly=true),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", readOnly=true),
  * )
  */
 class PromoController extends Controller

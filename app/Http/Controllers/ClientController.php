@@ -292,7 +292,7 @@ class ClientController extends Controller
      */
     public function show($id)
     {
-        $this->authorize('view', Client::class);
+        // $this->authorize('view', Client::class);
         try {
             $client = Client::findOrFail($id);
             return $this->sendResponse(StatusEnum::SUCCESS, new ClientResource($client), 'Client récupéré avec succès');

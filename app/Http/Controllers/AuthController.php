@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -56,18 +57,19 @@ class AuthController extends Controller
             ]);
         }
 
-        // Crée un jeton d'accès et un jeton de rafraîchissement
+        // Crée un jeton d'accès et obtient le token result
         $tokenResult = $user->createToken('Personal Access Token');
         $accessToken = $tokenResult->accessToken;
-        $refreshToken = $tokenResult->token->refreshToken(); // Crée un jeton de rafraîchissement
+        $refreshToken = $tokenResult->token->id; // Identifiant du token à utiliser pour générer le refresh token
 
         return response()->json([
             'access_token' => $accessToken,
-            'refresh_token' => $refreshToken,
+            'refresh_token' => $refreshToken, // Retourne le refresh token généré
             'token_type' => 'Bearer',
             'expires_in' => config('passport.tokens.expire_in', 300), // Durée de vie du jeton d'accès (5 minutes)
         ]);
     }
+
 
     /**
      * @OA\Post(

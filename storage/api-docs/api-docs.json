@@ -3715,6 +3715,14 @@
                 },
                 "type": "object"
             }
+        },
+        "securitySchemes": {
+            "bearer": {
+                "type": "apiKey",
+                "description": "Enter your Bearer token in the format (Bearer <token>)",
+                "name": "Authorization",
+                "in": "header"
+            }
         }
     },
     "tags": [
@@ -3749,6 +3757,11 @@
         {
             "name": "Users",
             "description": "Users"
+        }
+    ],
+    "security": [
+        {
+            "bearer": []
         }
     ]
 }
